@@ -44,6 +44,7 @@ from .evalf import PrecisionExhausted
 from .evaluate import global_evaluate
 from .expr import AtomicExpr, Expr
 from .logic import fuzzy_and
+from .mul import Mul
 from .numbers import Float, Integer, Rational, nan
 from .operations import LatticeOp
 from .rules import Transform
@@ -192,6 +193,7 @@ class Application(Expr, metaclass=FunctionClass):
     def __new__(cls, *args, **options):
         from ..sets.fancysets import Naturals0
         from ..sets.sets import FiniteSet
+        from .symbol import Dummy
 
         args = list(map(sympify, args))
         evaluate = options.pop('evaluate', global_evaluate[0])
@@ -209,6 +211,34 @@ class Application(Expr, metaclass=FunctionClass):
             evaluated = cls.eval(*args)
             if evaluated is not None:
                 return evaluated
+            elif not isinstance(cls, UndefinedFunction) and not cls.is_Piecewise:
+                newargs, subst = [], []
+                for a in args:
+                    order_term = a.getO() if isinstance(a, Add) else None
+                    if order_term:
+                        d = Dummy()
+                        newargs.append(d)
+                        x0 = 0
+                        for s in order_term.free_symbols:
+                            lt = a.as_leading_term(s)
+                            if not lt.has(s):
+                                x0 = lt
+                        subst.append((d, x0, a))
+                    else:
+                        newargs.append(a)
+                if subst:
+                    evaluated = cls(*newargs)
+                    for d, x0, a in subst:
+                        terms, n, order, evaluated = evaluated.series(d, x0=x0, n=None), 0, a.getn(), 0
+                        for t in terms:
+                            if t.is_Mul:
+                                t = Mul(*[x.subs({d: a}).expand(deep=False) if x.has(d) else x for x in t.args]).expand(deep=False)
+                            evaluated += t.subs({d: a})
+                            n += 1
+                            if n > order:
+                                break
+                        evaluated += a.getO()
+                    return evaluated
 
         obj = super().__new__(cls, *args, **options)
 

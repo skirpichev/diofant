@@ -8,7 +8,7 @@ from diofant import (Derivative, Dummy, E, Eq, Expr, FiniteSet, Float,
                      RootOf, S, Subs, Sum, Symbol, Tuple, acos, cbrt, ceiling,
                      cos, diff, exp, expand, expint, floor, im, log, loggamma,
                      nan, nfloat, oo, pi, polygamma, re, sin, solve, sqrt,
-                     symbols, zoo)
+                     symbols, tan, zoo)
 from diofant.abc import a, b, t, w, x, y, z
 from diofant.core.basic import _aresame
 from diofant.core.cache import clear_cache
@@ -724,3 +724,17 @@ def test_sympyissue_6938():
 
 def test_sympyissue_21773():
     assert Subs(0, (y, 1)) * Subs(0, (z, 1)) == Subs(0, (x, 1))**2
+
+
+def test_series_autoeval():
+    assert log(2 + O(x)) == log(2) + O(x)
+    s = sin(x).series(x)
+    c = cos(x).series(x)
+    assert tan(s) == x + x**3/6 - x**5/40 + O(x**6)
+    assert log(c) == -x**2/2 - x**4/12 + O(x**6)
+    assert log(1 + x*y*(y + 1) + O(x**2)) == x*y*(y + 1) + O(x**2)
+
+
+@pytest.mark.xfail
+def test_series_autoeval_XXX():
+    assert log(x + O(x**2)) == log(x) + O(x)
