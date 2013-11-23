@@ -2447,6 +2447,17 @@ class Expr(Basic, EvalfMixin, metaclass=ManagedProperties):
 
             return yield_lseries(self.removeO()._eval_lseries(x, logx=logx))
 
+    def my_taylor(self, x):
+        from sympy.core.containers import Stream
+        from sympy.core.tests.test_streams import exp_series, map_streams
+        def generate(s, x):
+            return Stream(s.subs(x, S.Zero),
+                          lambda: generate(s.diff(x), x))
+        def pows(x):
+            return Stream(S.One, lambda: pows(x)*x)
+        return map_streams(lambda x, y, z: x*y*z,
+                           generate(self, x), pows(x), exp_series)
+
     def taylor_term(self, n, x, *previous_terms):
         """General method for the taylor term.
 

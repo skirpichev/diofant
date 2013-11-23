@@ -252,3 +252,64 @@ class Dict(Basic):
 
 
 Mapping.register(Dict)
+
+
+class Stream(object):
+    def __init__(self, first, compute_rest, empty=False):
+        self.first = first
+        self._compute_rest = compute_rest
+        self.empty = empty
+        self._rest = None
+        self._computed = False
+
+    class _StreamIterator(object):
+        def __init__(self, stream):
+            self._stream = stream
+
+        def __next__(self):
+            if not self._stream.empty:
+                r = self._stream.first
+                self._stream = self._stream.rest
+                return r
+            raise StopIteration()
+        next = __next__
+
+    def __iter__(self):
+        return self._StreamIterator(self)
+
+    @property
+    def rest(self):
+        if self.empty:
+            raise AttributeError('Empty streams have no rest.')
+        if not self._computed:
+            self._rest = self._compute_rest()
+            self._computed = True
+        return self._rest
+
+    def __str__(self):
+        if self.empty:
+            return '<empty stream>'
+        return 'Stream({0}, <compute_rest>)'.format(str(self.first))
+
+    def __add__(self, other):
+        return Stream(self.first + other.first,
+                      lambda: self.rest + other.rest)
+
+    def __sub__(self, other):
+        return Stream(self.first - other.first,
+                      lambda: self.rest - other.rest)
+
+    def __mul__(self, other):
+        from . import Number, Symbol, Basic
+        if isinstance(other, Basic):
+            return Stream(self.first*other, lambda: self.rest*other)
+        return Stream(self.first*other.first,
+                      lambda: other.rest*self.first + self.rest*other)
+
+    def __truediv__(self, other):
+        from . import Integer
+        def invert_unit_series(s):
+            return Stream(Integer(1), lambda: s.rest*invert_unit_series(s)*Integer(-1))
+        c = 1/other.first
+        return self*invert_unit_series(other)*c
+    __div__ = __truediv__
