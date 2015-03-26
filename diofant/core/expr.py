@@ -1780,7 +1780,7 @@ class Expr(Basic, EvalfMixin, metaclass=ManagedProperties):
             if self is oo:
                 if c.is_positive:
                     return oo
-            elif self is -oo:
+            elif self == -oo:
                 if c.is_negative:
                     return oo
                 elif c.is_positive:
@@ -1821,6 +1821,11 @@ class Expr(Basic, EvalfMixin, metaclass=ManagedProperties):
                     return
             return Add(*newargs)
         elif self.is_Mul:
+            if self == -S.Infinity:
+                if c.is_negative:
+                    return S.Infinity
+                elif c.is_positive:
+                    return -S.Infinity
             args = list(self.args)
             for i, arg in enumerate(args):
                 newarg = arg.extract_multiplicatively(c)
@@ -2354,9 +2359,9 @@ class Expr(Basic, EvalfMixin, metaclass=ManagedProperties):
         if len(dir) != 1 or dir not in '+-':
             raise ValueError("Dir must be '+' or '-'")
 
-        if x0 in [oo, -oo]:
+        if x0 in (oo, -oo):
             s = self.aseries(x, n)
-            if x0 is -oo:
+            if x0 == -oo:
                 return s.subs(x, -x)
             return s
 

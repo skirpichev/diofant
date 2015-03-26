@@ -1011,7 +1011,7 @@ class Interval(Set, EvalfMixin):
     @property
     def is_left_unbounded(self):
         """Return ``True`` if the left endpoint is negative infinity. """
-        return self.left is -oo or self.left == Float("-inf")
+        return self.left == -oo or self.left == Float("-inf")
 
     @property
     def is_right_unbounded(self):

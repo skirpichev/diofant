@@ -393,7 +393,7 @@ class Number(AtomicExpr):
             return nan
         elif other is oo:
             return oo
-        elif other is -oo:
+        elif other == -oo:
             return -oo
         else:
             return AtomicExpr.__add__(self, other)
@@ -404,7 +404,7 @@ class Number(AtomicExpr):
             return nan
         elif other is oo:
             return -oo
-        elif other is -oo:
+        elif other == -oo:
             return oo
         else:
             return AtomicExpr.__sub__(self, other)
@@ -422,7 +422,7 @@ class Number(AtomicExpr):
                 return oo
             else:
                 return -oo
-        elif other is -oo:
+        elif other == -oo:
             if self.is_zero:
                 return nan
             elif self.is_positive:
@@ -1537,7 +1537,7 @@ class Integer(Rational):
                 return oo
             # cases -1, 0, 1 are done in their respective classes
             return oo + I*oo
-        if expt is -oo:
+        if expt == -oo:
             return Rational(1, self)**oo
         if isinstance(expt, Float):
             # Rational knows how to exponentiate by a Float
@@ -1830,7 +1830,7 @@ class Infinity(Number, metaclass=Singleton):
     See Also
     ========
 
-    NegativeInfinity, NaN
+    NaN
 
     References
     ==========
@@ -1853,7 +1853,7 @@ class Infinity(Number, metaclass=Singleton):
     @_sympifyit('other', NotImplemented)
     def __add__(self, other):
         if isinstance(other, Number):
-            if other is -oo or other is nan:
+            if other == -oo or other is nan:
                 return nan
             elif other.is_Float:
                 if other == Float('-inf'):
@@ -1902,7 +1902,7 @@ class Infinity(Number, metaclass=Singleton):
     @_sympifyit('other', NotImplemented)
     def __truediv__(self, other):
         if isinstance(other, Number):
-            if other is oo or other is -oo or other is nan:
+            if other is oo or other == -oo or other is nan:
                 return nan
             elif other.is_Float:
                 if other == Float('-inf') or \
@@ -1922,9 +1922,6 @@ class Infinity(Number, metaclass=Singleton):
     def __abs__(self):
         return oo
 
-    def __neg__(self):
-        return S.NegativeInfinity
-
     def _eval_power(self, expt):
         """
         ``expt`` is symbolic object but not equal to 0 or 1.
@@ -1940,7 +1937,6 @@ class Infinity(Number, metaclass=Singleton):
         ========
         Pow
         NaN
-        NegativeInfinity
 
         """
         from ..functions import re
@@ -1976,7 +1972,7 @@ class Infinity(Number, metaclass=Singleton):
     @_sympifyit('other', NotImplemented)
     def __le__(self, other):
         if other.is_extended_real:
-            if other.is_finite or other is -oo:
+            if other.is_finite or other == -oo:
                 return S.false
             elif other.is_nonpositive:
                 return S.false
@@ -1987,7 +1983,7 @@ class Infinity(Number, metaclass=Singleton):
     @_sympifyit('other', NotImplemented)
     def __gt__(self, other):
         if other.is_extended_real:
-            if other.is_finite or other is -oo:
+            if other.is_finite or other == -oo:
                 return S.true
             elif other.is_nonpositive:
                 return S.true
@@ -2008,181 +2004,6 @@ class Infinity(Number, metaclass=Singleton):
 
 
 oo = S.Infinity
-
-
-class NegativeInfinity(Number, metaclass=Singleton):
-    """Negative infinite quantity.
-
-    NegativeInfinity is a singleton, and can be accessed by ``-oo``.
-
-    See Also
-    ========
-
-    Infinity
-    """
-
-    is_commutative = True
-    is_negative = True
-    is_infinite = True
-    is_number = True
-
-    def __new__(cls):
-        return AtomicExpr.__new__(cls)
-
-    def _latex(self, printer):
-        return r"-\infty"
-
-    @_sympifyit('other', NotImplemented)
-    def __add__(self, other):
-        if isinstance(other, Number):
-            if other is oo or other is nan:
-                return nan
-            elif other.is_Float:
-                if other == Float('inf'):
-                    return Float('nan')
-                else:
-                    return Float('-inf')
-            else:
-                return -oo
-        return NotImplemented
-    __radd__ = __add__
-
-    @_sympifyit('other', NotImplemented)
-    def __sub__(self, other):
-        if isinstance(other, Number):
-            if other is -oo or other is nan:
-                return nan
-            elif other.is_Float:
-                if other == Float('-inf'):
-                    return Float('nan')
-                else:
-                    return Float('-inf')
-            else:
-                return -oo
-        return NotImplemented
-
-    @_sympifyit('other', NotImplemented)
-    def __mul__(self, other):
-        if isinstance(other, Number):
-            if other is S.Zero or other is nan:
-                return nan
-            elif other.is_Float:
-                if other.is_zero:
-                    return nan
-                elif other.is_positive:
-                    return Float('-inf')
-                else:
-                    return Float('inf')
-            else:
-                if other.is_positive:
-                    return -oo
-                else:
-                    return oo
-        return NotImplemented
-    __rmul__ = __mul__
-
-    @_sympifyit('other', NotImplemented)
-    def __truediv__(self, other):
-        if isinstance(other, Number):
-            if other is oo or other is -oo or other is nan:
-                return nan
-            elif other.is_Float:
-                if other == Float('-inf') or \
-                    other == Float('inf') or \
-                        other is nan:
-                    return nan
-                elif other.is_nonnegative:
-                    return Float('-inf')
-                else:
-                    return Float('inf')
-            else:
-                if other >= 0:
-                    return -oo
-                else:
-                    return oo
-        return NotImplemented
-
-    def __abs__(self):
-        return oo
-
-    def __neg__(self):
-        return oo
-
-    def _eval_power(self, expt):
-        """
-        ``expt`` is symbolic object but not equal to 0 or 1.
-
-        ================ ======= ==============================
-        Expression       Result  Notes
-        ================ ======= ==============================
-        ``(-oo) ** nan`` ``nan``
-        ``(-oo) ** oo``  ``nan``
-        ``(-oo) ** -oo`` ``nan``
-        ``(-oo) ** e``   ``oo``  ``e`` is positive even integer
-        ``(-oo) ** o``   ``-oo`` ``o`` is positive odd integer
-        ================ ======= ==============================
-
-        See Also
-        ========
-
-        Infinity
-        Pow
-        NaN
-
-        """
-        if expt.is_number:
-            if expt in (oo, -oo, nan):
-                return nan
-
-            return S.NegativeOne**expt*oo**expt
-
-    def _as_mpf_val(self, prec):
-        return mlib.fninf
-
-    def __hash__(self):
-        return super(NegativeInfinity, self).__hash__()
-
-    def __eq__(self, other):
-        return other is -oo
-
-    @_sympifyit('other', NotImplemented)
-    def __lt__(self, other):
-        if other.is_extended_real:
-            if other.is_finite or other is oo:
-                return S.true
-            elif other.is_nonnegative:
-                return S.true
-            elif other is -oo:
-                return S.false
-        return Expr.__lt__(self, other)
-
-    @_sympifyit('other', NotImplemented)
-    def __le__(self, other):
-        if other.is_extended_real:
-            return S.true
-        return Expr.__le__(self, other)
-
-    @_sympifyit('other', NotImplemented)
-    def __gt__(self, other):
-        if other.is_extended_real:
-            return S.false
-        return Expr.__gt__(self, other)
-
-    @_sympifyit('other', NotImplemented)
-    def __ge__(self, other):
-        if other.is_extended_real:
-            if other.is_finite or other is oo:
-                return S.false
-            elif other.is_nonnegative:
-                return S.false
-            elif other is -oo:
-                return S.true
-        return Expr.__ge__(self, other)
-
-    def __mod__(self, other):
-        return nan
-
-    __rmod__ = __mod__
 
 
 class NaN(Number, metaclass=Singleton):
