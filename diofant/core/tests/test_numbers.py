@@ -806,8 +806,7 @@ def test_NaN():
 
 def test_special_numbers():
     assert isinstance(nan, Number) is True
-    assert isinstance(+oo, Number) is True
-    assert isinstance(-oo, Number) is True
+    assert isinstance(oo, Number) is True
 
     assert nan.is_number is True
     assert (+oo).is_number is True

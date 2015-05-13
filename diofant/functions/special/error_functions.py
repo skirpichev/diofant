@@ -108,7 +108,7 @@ class erf(Function):
         if arg.is_Number:
             if arg is oo:
                 return S.One
-            elif arg is -oo:
+            elif arg == -oo:
                 return S.NegativeOne
             elif arg is S.Zero:
                 return S.Zero
@@ -121,7 +121,7 @@ class erf(Function):
 
         # Try to pull out factors of I
         t = arg.extract_multiplicatively(I)
-        if t is oo or t is -oo:
+        if t is oo or t == -oo:
             return arg
 
         # Try to pull out factors of -1
@@ -308,7 +308,7 @@ class erfc(Function):
 
         # Try to pull out factors of I
         t = arg.extract_multiplicatively(I)
-        if t is oo or t is -oo:
+        if t is oo or t == -oo:
             return -arg
 
         # Try to pull out factors of -1
@@ -1497,7 +1497,7 @@ class TrigonometricIntegral(Function):
             return cls._atzero
         elif z is oo:
             return cls._atinf()
-        elif z is -oo:
+        elif z == -oo:
             return cls._atneginf()
 
         nz = z.extract_multiplicatively(polar_lift(I))

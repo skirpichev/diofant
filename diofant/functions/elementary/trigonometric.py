@@ -201,7 +201,7 @@ class sin(TrigonometricFunction):
         if arg.is_Number:
             if arg is S.Zero:
                 return S.Zero
-            elif arg is oo or arg is -oo:
+            elif arg is oo or arg == -oo:
                 return
 
         if arg.could_extract_minus_sign():
@@ -445,7 +445,7 @@ class cos(TrigonometricFunction):
         if arg.is_Number:
             if arg is S.Zero:
                 return S.One
-            elif arg is oo or arg is -oo:
+            elif arg is oo or arg == -oo:
                 # In this cases, it is unclear if we should
                 # return nan or leave un-evaluated.  One
                 # useful test case is how "limit(sin(x)/x,x,oo)"
@@ -1481,7 +1481,7 @@ class asin(InverseTrigonometricFunction):
         if arg.is_Number:
             if arg is oo:
                 return -oo * I
-            elif arg is -oo:
+            elif arg == -oo:
                 return oo * I
             elif arg is S.Zero:
                 return S.Zero
@@ -1656,7 +1656,7 @@ class acos(InverseTrigonometricFunction):
         if arg.is_Number:
             if arg is oo:
                 return oo * I
-            elif arg is -oo:
+            elif arg == -oo:
                 return -oo * I
             elif arg is S.Zero:
                 return pi / 2
@@ -1822,7 +1822,7 @@ class atan(InverseTrigonometricFunction):
         if arg.is_Number:
             if arg is oo:
                 return pi / 2
-            elif arg is -oo:
+            elif arg == -oo:
                 return -pi / 2
             elif arg is S.Zero:
                 return S.Zero
@@ -1967,7 +1967,7 @@ class acot(InverseTrigonometricFunction):
         if arg.is_Number:
             if arg is oo:
                 return S.Zero
-            elif arg is -oo:
+            elif arg == -oo:
                 return S.Zero
             elif arg is S.Zero:
                 return pi / 2
@@ -2383,7 +2383,7 @@ class atan2(InverseTrigonometricFunction):
     def eval(cls, y, x):
         from .. import Heaviside
         from .complexes import im, re
-        if x is -oo:
+        if x == -oo:
             if y.is_zero:
                 # Special case y = 0 because we define Heaviside(0) = 1/2
                 return pi

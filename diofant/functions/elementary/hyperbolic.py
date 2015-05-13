@@ -70,7 +70,7 @@ class sinh(HyperbolicFunction):
         if arg.is_Number:
             if arg is oo:
                 return oo
-            elif arg is -oo:
+            elif arg == -oo:
                 return -oo
             elif arg is S.Zero:
                 return S.Zero
@@ -220,7 +220,7 @@ class cosh(HyperbolicFunction):
         if arg.is_Number:
             if arg is oo:
                 return oo
-            elif arg is -oo:
+            elif arg == -oo:
                 return oo
             elif arg is S.Zero:
                 return S.One
@@ -370,7 +370,7 @@ class tanh(HyperbolicFunction):
         if arg.is_Number:
             if arg is oo:
                 return S.One
-            elif arg is -oo:
+            elif arg == -oo:
                 return S.NegativeOne
             elif arg is S.Zero:
                 return S.Zero
@@ -500,7 +500,7 @@ class coth(HyperbolicFunction):
         if arg.is_Number:
             if arg is oo:
                 return S.One
-            elif arg is -oo:
+            elif arg == -oo:
                 return S.NegativeOne
             elif arg is S.Zero:
                 return zoo
@@ -783,7 +783,7 @@ class asinh(Function):
         if arg.is_Number:
             if arg is oo:
                 return oo
-            elif arg is -oo:
+            elif arg == -oo:
                 return -oo
             elif arg is S.Zero:
                 return S.Zero
@@ -867,7 +867,7 @@ class acosh(Function):
         if arg.is_Number:
             if arg is oo:
                 return oo
-            elif arg is -oo:
+            elif arg == -oo:
                 return oo
             elif arg is S.Zero:
                 return pi*I / 2
@@ -976,7 +976,7 @@ class atanh(Function):
                 return -oo
             elif arg is oo:
                 return -I * atan(arg)
-            elif arg is -oo:
+            elif arg == -oo:
                 return I * atan(-arg)
             elif arg.is_negative:
                 return -cls(-arg)
@@ -1038,7 +1038,7 @@ class acoth(Function):
         if arg.is_Number:
             if arg is oo:
                 return S.Zero
-            elif arg is -oo:
+            elif arg == -oo:
                 return S.Zero
             elif arg is S.Zero:
                 return pi*I / 2

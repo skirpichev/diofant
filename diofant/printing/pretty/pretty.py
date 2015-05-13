@@ -73,7 +73,6 @@ class PrettyPrinter(Printer):
 
     # Infinity inherits from Number, so we have to override _print_XXX order
     _print_Infinity = _print_Atom
-    _print_NegativeInfinity = _print_Atom
     _print_EmptySet = _print_Atom
     _print_Naturals = _print_Atom
     _print_Naturals0 = _print_Atom
@@ -1349,7 +1348,7 @@ class PrettyPrinter(Printer):
         else:
             dots = '...'
 
-        if s.start is -oo:
+        if s.start == -oo:
             it = iter(s)
             printset = s.start, dots, s._last_element - s.step, s._last_element
         elif s.stop is oo or len(s) > 4:

@@ -441,7 +441,6 @@ atoms_table = {
     'Exp1':                    '\N{SCRIPT SMALL E}',
     'Pi':                      '\N{GREEK SMALL LETTER PI}',
     'Infinity':                '\N{INFINITY}',
-    'NegativeInfinity':        '\N{INFINITY}' and ('-' + '\N{INFINITY}'),  # XXX what to do here
     # 'ImaginaryUnit':          '\N{GREEK SMALL LETTER IOTA}',
     # 'ImaginaryUnit':          '\N{MATHEMATICAL ITALIC SMALL I}',
     'ImaginaryUnit':           '\N{DOUBLE-STRUCK ITALIC SMALL I}',
