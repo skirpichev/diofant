@@ -1105,8 +1105,6 @@ evalf_table = None
 def _create_evalf_table():
     global evalf_table
     from ..functions.combinatorial.numbers import bernoulli
-    from ..concrete.products import Product
-    from ..concrete.summations import Sum
     from .add import Add
     from .mul import Mul
     from .numbers import (Exp1, Float, Half, ImaginaryUnit,
@@ -1119,6 +1117,7 @@ def _create_evalf_table():
     from ..functions.elementary.piecewise import Piecewise
     from ..functions.elementary.trigonometric import atan, cos, sin
     from ..integrals.integrals import Integral
+    import diofant
     evalf_table = {
         Symbol: evalf_symbol,
         Dummy: evalf_symbol,
@@ -1151,8 +1150,8 @@ def _create_evalf_table():
         im: evalf_im,
 
         Integral: evalf_integral,
-        Sum: evalf_sum,
-        Product: evalf_prod,
+        diofant.Sum: evalf_sum,
+        diofant.Product: evalf_prod,
         Piecewise: evalf_piecewise,
 
         bernoulli: evalf_bernoulli,
