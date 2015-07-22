@@ -198,7 +198,7 @@ class sin(TrigonometricFunction):
 
     @classmethod
     def eval(cls, arg):
-        if arg.is_Number:
+        if arg.is_number:
             if arg is S.Zero:
                 return S.Zero
             elif arg is oo or arg == -oo:
@@ -442,7 +442,7 @@ class cos(TrigonometricFunction):
     @classmethod
     def eval(cls, arg):
         from .. import chebyshevt
-        if arg.is_Number:
+        if arg.is_number:
             if arg is S.Zero:
                 return S.One
             elif arg is oo or arg == -oo:
@@ -1478,7 +1478,7 @@ class asin(InverseTrigonometricFunction):
 
     @classmethod
     def eval(cls, arg):
-        if arg.is_Number:
+        if arg.is_number:
             if arg is oo:
                 return -oo * I
             elif arg == -oo:
@@ -1653,7 +1653,7 @@ class acos(InverseTrigonometricFunction):
 
     @classmethod
     def eval(cls, arg):
-        if arg.is_Number:
+        if arg.is_number:
             if arg is oo:
                 return oo * I
             elif arg == -oo:
@@ -1819,7 +1819,7 @@ class atan(InverseTrigonometricFunction):
 
     @classmethod
     def eval(cls, arg):
-        if arg.is_Number:
+        if arg.is_number:
             if arg is oo:
                 return pi / 2
             elif arg == -oo:
@@ -1964,7 +1964,7 @@ class acot(InverseTrigonometricFunction):
 
     @classmethod
     def eval(cls, arg):
-        if arg.is_Number:
+        if arg.is_number:
             if arg is oo:
                 return S.Zero
             elif arg == -oo:

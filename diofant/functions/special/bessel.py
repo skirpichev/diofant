@@ -835,7 +835,7 @@ class airyai(AiryBase):
 
     @classmethod
     def eval(cls, arg):
-        if arg.is_Number:
+        if arg.is_number:
             if arg is oo:
                 return S.Zero
             elif arg == -oo:
@@ -990,7 +990,7 @@ class airybi(AiryBase):
 
     @classmethod
     def eval(cls, arg):
-        if arg.is_Number:
+        if arg.is_number:
             if arg is oo:
                 return oo
             elif arg == -oo:
@@ -1336,7 +1336,7 @@ class airybiprime(AiryBase):
 
     @classmethod
     def eval(cls, arg):
-        if arg.is_Number:
+        if arg.is_number:
             if arg is oo:
                 return oo
             elif arg == -oo:

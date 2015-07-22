@@ -205,7 +205,7 @@ class log(Function):
             else:
                 return cls(arg)
 
-        if arg.is_Number:
+        if arg.is_number:
             if arg is S.Zero:
                 return zoo
             elif arg is S.One:
