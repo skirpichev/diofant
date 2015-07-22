@@ -263,6 +263,8 @@ class Expr(Basic, EvalfMixin, metaclass=ManagedProperties):
                 raise TypeError("Invalid NaN comparison")
         if self.is_extended_real or other.is_extended_real:
             dif = self - other
+            if self == other:
+                return S.false
             if dif.is_negative is not None and \
                     dif.is_negative is not dif.is_nonnegative:
                 return sympify(dif.is_negative)
