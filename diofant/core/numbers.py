@@ -436,11 +436,10 @@ class Number(AtomicExpr):
 
     @_sympifyit('other', NotImplemented)
     def __truediv__(self, other):
-        if isinstance(other, Number):
-            if other is nan:
-                return nan
-            elif other in (oo, -oo):
-                return S.Zero
+        if other is nan:
+            return nan
+        elif other in (oo, -oo):
+            return S.Zero
         return AtomicExpr.__truediv__(self, other)
 
     def __hash__(self):
@@ -1852,9 +1851,9 @@ class Infinity(Number, metaclass=Singleton):
 
     @_sympifyit('other', NotImplemented)
     def __add__(self, other):
-        if isinstance(other, Number):
+        if other.is_number:
             if other == -oo or other is nan:
-                return nan
+                return S.NaN
             elif other.is_Float:
                 if other == Float('-inf'):
                     return nan
@@ -1901,7 +1900,7 @@ class Infinity(Number, metaclass=Singleton):
 
     @_sympifyit('other', NotImplemented)
     def __truediv__(self, other):
-        if isinstance(other, Number):
+        if other.is_number:
             if other is oo or other == -oo or other is nan:
                 return nan
             elif other.is_Float:
