@@ -44,7 +44,7 @@ from .evalf import PrecisionExhausted
 from .evaluate import global_evaluate
 from .expr import AtomicExpr, Expr
 from .logic import fuzzy_and
-from .numbers import Float, Integer, Rational, nan
+from .numbers import Float, Integer, Rational, Number, NumberSymbol, nan
 from .operations import LatticeOp
 from .rules import Transform
 from .singleton import S
@@ -438,7 +438,11 @@ class Function(Application, Expr):
         try:
             args = [arg._to_mpmath(prec + 5) for arg in self.args]
         except ValueError:
-            return
+            newargs = {a: a.has(Number, NumberSymbol) for a in self.args}
+            if all(v is False for v in newargs.values()):
+                return
+            newargs = [k._eval_evalf(prec) if v else k for k, v in newargs.items()]
+            return self.func(*newargs)
 
         with mpmath.workprec(prec):
             v = func(*args)
