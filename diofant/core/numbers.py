@@ -2271,7 +2271,7 @@ class Exp1(NumberSymbol, metaclass=Singleton):
         if arg.is_Number:
             if arg is oo:
                 return oo
-            elif arg is -oo:
+            elif arg == -oo:
                 return S.Zero
         elif isinstance(arg, log):
             return arg.args[0]
