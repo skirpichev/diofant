@@ -509,7 +509,10 @@ class Max(MinMaxBase, Application):
     """
 
     zero = oo
-    identity = -oo
+
+    @property
+    def identity(self):
+        return -oo
 
     def fdiff( self, argindex ):
         from .. import Heaviside
@@ -558,7 +561,10 @@ class Min(MinMaxBase, Application):
     diofant.functions.elementary.miscellaneous.Max : find maximum values
     """
 
-    zero = -oo
+    @property
+    def zero(self):
+        return -oo
+
     identity = oo
 
     def fdiff( self, argindex ):
