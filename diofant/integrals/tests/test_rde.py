@@ -88,6 +88,12 @@ def test_special_denom():
                          Poly(1, t0), DE) == \
         (Poly(1, t0), Poly(I*k, t0), Poly(t0, t0), Poly(1, t0))
 
+    DE = DifferentialExtension(extension={'D': [Poly(1, x), Poly(t**2 + 1, t)]})
+    assert special_denom(Poly(5*t + 1, t), Poly(t**2, t),
+                         Poly(1, t), Poly(t, t),
+                         Poly(t, t), DE) == (Poly(5*t + 1, t), Poly(t**2, t),
+                                             Poly(1, t), Poly(1, t))
+
 
 @pytest.mark.xfail
 def test_bound_degree_fail():

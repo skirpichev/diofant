@@ -26,9 +26,11 @@ from operator import mul
 
 from ..core import Dummy, oo
 from ..domains import ZZ
+from ..functions import im, re, sqrt
 from ..polys import Poly, cancel, gcd
 from .risch import (DecrementLevel, NonElementaryIntegralException, derivation,
-                    frac_in, gcdex_diophantine, splitfactor)
+                    frac_in, gcdex_diophantine, recognize_log_derivative,
+                    splitfactor)
 
 
 # TODO: Add messages to NonElementaryIntegralException errors
