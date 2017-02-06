@@ -140,7 +140,7 @@ def mrv(e, x):
         if e.base is S.Exp1:
             if e.exp == x:
                 return {e}
-            elif any(a.is_infinite for a in Mul.make_args(limitinf(e.exp, x))):
+            elif limitinf(e.exp, x).is_infinite:
                 return mrv_max({e}, mrv(e.exp, x), x)
             else:
                 return mrv(e.exp, x)
@@ -185,14 +185,14 @@ def sign(e, x):
     if not e.has(x):
         return sgn(e).simplify()
     elif e == x:
-        return 1
+        return S.One
     elif e.is_Mul:
         a, b = e.as_two_terms()
         return sign(a, x)*sign(b, x)
     elif e.is_Pow:
         s = sign(e.base, x)
         if s == 1:
-            return 1
+            return S.One
 
     c0, e0 = mrv_leadterm(e, x)
     return sign(c0, x)
@@ -233,13 +233,14 @@ def limitinf(e, x):
     if sig == 1:
         return S.Zero
     elif sig == -1:
-        s = sign(c0, x)
-        assert s != S.Zero
-        return s*S.Infinity
+        sig = sign(c0, x)
+        assert sig != S.Zero
+        if sig.equals(0) is False:
+            return sig*S.Infinity
     elif sig == 0:
         return limitinf(c0, x)
-    else:
-        raise NotImplementedError('Result depends on the sign of %s' % sig)
+
+    raise NotImplementedError('Result depends on the sign of %s' % sig)
 
 
 @cacheit
