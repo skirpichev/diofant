@@ -17,17 +17,19 @@ class Order(Expr):
     ==========
 
     expr : Expr
-        an expression
-    args : sequence of Symbol's or pairs (Symbol, Expr), optional
-        If only symbols are provided, i.e. no limit point are
-        passed, then the limit point is assumed to be zero.  If no
-        symbols are passed then all symbols in the expression are used.
+        the function
+    variable : Symbol, optional
+        the argument of the function, if not provided
+        and ``expr`` has one free symbol - this symbol
+        will be used as a variable in question.
+    point : Expr, optional
+        the limiting point, assumed to be zero by default.
 
     Examples
     ========
 
     >>> from diofant import O, oo, cos, pi
-    >>> from diofant.abc import x, y
+    >>> from diofant.abc import x
 
     The order of a function can be intuitively thought of representing all
     terms of powers greater than the one specified.  For example, `O(x^3)`
@@ -65,21 +67,14 @@ class Order(Expr):
     >>> O(x**2) in O(x)
     True
 
-    Limit points other then zero and multivariate Big O are also supported:
+    Limit points other then zero are also supported:
 
-    >>> O(x) == O(x, (x, 0))
+    >>> O(x) == O(x, x, 0)
     True
-    >>> O(x + x**2, (x, oo))
-    O(x**2, (x, oo))
-    >>> O(cos(x), (x, pi/2))
-    O(x - pi/2, (x, pi/2))
-
-    >>> O(1 + x*y)
-    O(1, x, y)
-    >>> O(1 + x*y, (x, 0), (y, 0))
-    O(1, x, y)
-    >>> O(1 + x*y, (x, oo), (y, oo))
-    O(x*y, (x, oo), (y, oo))
+    >>> O(x + x**2, x, oo)
+    O(x**2, x, oo)
+    >>> O(cos(x), x, pi/2)
+    O(x - pi/2, x, pi/2)
 
     References
     ==========
@@ -90,12 +85,12 @@ class Order(Expr):
     is_Order = True
 
     @cacheit
-    def __new__(cls, expr, *args, **kwargs):
+    def __new__(cls, expr, variable=None, point=None, *args, **kwargs):
         expr = sympify(expr)
 
         if not args:
             if expr.is_Order:
-                variables = expr.variables
+                variable = expr.variable
                 point = expr.point
             else:
                 variables = list(expr.free_symbols)
