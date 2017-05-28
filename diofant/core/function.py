@@ -592,7 +592,7 @@ class Function(Application, Expr):
             return s
         if (self.func.nargs is S.Naturals0
                 or (self.func.nargs == FiniteSet(1) and args0[0])
-                or any(c > 1 for c in self.func.nargs)):
+                or len(self.args) > 1):
             e = self
             e1 = e.expand()
             if e == e1:

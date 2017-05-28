@@ -522,18 +522,13 @@ class LambertW(Function):
         else:
             return s.is_algebraic
 
-    def _eval_nseries(self, x, n, logx):
+    def taylor_term(self, n, x, *previous_terms):
+        from .. import factorial
         if len(self.args) == 1:
-            from ...series import Order
-            from .. import factorial
-            x = self.args[0]
-            o = Order(x**n, x)
-            l = S.Zero
-            if n > 0:
-                l += Add(*[Integer(-k)**(k - 1)*x**k/factorial(k)
-                           for k in range(1, n)])
-            return l + o
-        return super(LambertW, self)._eval_nseries(x, n=n, logx=logx)
+            if n <= 0:
+                return S.Zero
+            return Integer(-n)**(n - 1)*x**n/factorial(n)
+        return super(LambertW, self).taylor_term(n, x, *previous_terms)
 
 
 from ...core.function import _coeff_isneg
