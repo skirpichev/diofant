@@ -97,10 +97,8 @@ class BaseSymbol(AtomicExpr, Boolean):
         # sanitize other assumptions so 1 -> True and 0 -> False
         for key in list(assumptions.keys()):
             v = assumptions[key]
-            if v is None:
-                assumptions.pop(key)
-                continue
-            assumptions[key] = bool(v)
+            if v is not None:
+                assumptions[key] = bool(v)
 
     def __new__(cls, name, **assumptions):
         """Symbols are identified by name and assumptions::
@@ -135,6 +133,12 @@ class BaseSymbol(AtomicExpr, Boolean):
         # be strict about commutativity
         is_commutative = fuzzy_bool(assumptions.get('commutative', True))
         assumptions['commutative'] = is_commutative
+
+        # be finite, unless stated otherwise
+        if is_commutative and ('finite' not in assumptions and
+                               'infinite not in assumptions'):
+            assumptions['finite'] = True
+
         obj._assumptions = StdFactKB(assumptions)
         obj._assumptions._generator = tmp_asm_copy  # Issue sympy/sympy#8873
         return obj
