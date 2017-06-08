@@ -3,10 +3,10 @@ from .basic import _aresame
 from .cache import cacheit
 from .compatibility import ordered
 from .evaluate import global_evaluate
-from .expr import Expr
+from .basic import Basic
 
 
-class AssocOp(Expr):
+class AssocOp(Basic):
     """ Associative operations, can separate noncommutative and
     commutative parts.
 

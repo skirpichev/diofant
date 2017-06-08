@@ -6,6 +6,7 @@ from .sympify import sympify
 from .basic import Basic
 from .singleton import S
 from .operations import AssocOp
+from .expr import Expr
 from .cache import cacheit
 from .logic import fuzzy_not, _fuzzy_group, fuzzy_and
 from .compatibility import default_sort_key
@@ -78,7 +79,7 @@ def _unevaluated_Mul(*args):
     return Mul._from_args(newargs)
 
 
-class Mul(AssocOp):
+class Mul(AssocOp, Expr):
 
     is_Mul = True
 

@@ -5,11 +5,12 @@ from .compatibility import is_sequence, default_sort_key
 from .logic import _fuzzy_group
 from .singleton import S
 from .operations import AssocOp
+from .expr import Expr
 from .cache import cacheit
 from .numbers import ilcm, igcd
 
 
-class Add(AssocOp):
+class Add(AssocOp, Expr):
 
     is_Add = True
 
