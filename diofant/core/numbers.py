@@ -2420,8 +2420,8 @@ class Exp1(NumberSymbol, metaclass=Singleton):
             return Integer(2), Integer(3)
 
     def _eval_power(self, arg):
-        from ..functions.elementary.exponential import log
-        from . import Add, Mul, Pow
+        from ..functions.elementary.exponential import exp, log
+        from . import Add, Mul
         if arg.is_Number:
             if arg is oo:
                 return oo
@@ -2483,7 +2483,7 @@ class Exp1(NumberSymbol, metaclass=Singleton):
                 else:
                     out.append(newa)
             if out:
-                return Mul(*out)*Pow(self, Add(*add), evaluate=False)
+                return Mul(*out)*exp(Add(*add), evaluate=False)
         elif arg.is_Matrix:
             return arg.exp()
 

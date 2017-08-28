@@ -2281,6 +2281,7 @@ def nfloat(expr, n=15, exponent=False):
     """
     from .power import Pow
     from .symbol import Dummy
+    from ..functions import exp
     from ..polys.rootoftools import RootOf
 
     if iterable(expr, exclude=(str,)):
@@ -2321,4 +2322,4 @@ def nfloat(expr, n=15, exponent=False):
 
     return rv.xreplace(Transform(
         lambda x: x.func(*nfloat(x.args, n, exponent)),
-        lambda x: isinstance(x, Function)))
+        lambda x: isinstance(x, (Function, exp))))

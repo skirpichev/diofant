@@ -1111,11 +1111,11 @@ def _create_evalf_table():
     from .mul import Mul
     from .numbers import (Exp1, Float, Half, ImaginaryUnit,
                           Integer, NaN, NegativeOne, One, Pi,
-                          Rational, Zero)
+                          Rational, Zero, E)
     from .power import Pow
     from .symbol import Dummy, Symbol
     from ..functions.elementary.complexes import Abs, im, re
-    from ..functions.elementary.exponential import log
+    from ..functions.elementary.exponential import exp, log
     from ..functions.elementary.piecewise import Piecewise
     from ..functions.elementary.trigonometric import atan, cos, sin
     from ..integrals.integrals import Integral
@@ -1142,6 +1142,10 @@ def _create_evalf_table():
         Add: evalf_add,
         Mul: evalf_mul,
         Pow: evalf_pow,
+
+        exp: lambda x, prec, options: evalf_pow(Pow(E, x.args[0],
+                                                    evaluate=False),
+                                                prec, options),
 
         log: evalf_log,
         atan: evalf_atan,

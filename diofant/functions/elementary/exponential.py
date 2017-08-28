@@ -134,7 +134,7 @@ class exp_polar(Function):
         return self.func(1), Mul(*self.args)
 
 
-def exp(arg, **kwargs):
+class exp(Pow):
     """
     The exponential function, `e^x`.
 
@@ -143,7 +143,35 @@ def exp(arg, **kwargs):
 
     diofant.functions.elementary.exponential.log
     """
-    return Pow(E, arg, **kwargs)
+
+    def __new__(cls, arg, *opt_args, **kwargs):
+        args = [E, arg]
+        if opt_args:
+            args[-1] = opt_args[0]
+        obj = super(exp, cls).__new__(cls, *args, **kwargs)
+        if obj.is_Pow and obj.base is E:
+            obj._args = (sympify(args[-1]),)
+        return obj
+
+    @property
+    def base(self):
+        return E
+
+    @property
+    def exp(self):
+        return self.args[0]
+
+    def _eval_rewrite_as_sin(self, exp):
+        from .. import sin
+        return sin(I*self.exp + pi/2) - I*sin(I*self.exp)
+
+    def _eval_rewrite_as_cos(self, exp):
+        from .. import cos
+        return cos(I*self.exp) + I*cos(I*self.exp + pi/2)
+
+    def _eval_rewrite_as_tanh(self, exp):
+        from .. import tanh
+        return (1 + tanh(self.exp/2))/(1 - tanh(self.exp/2))
 
 
 class log(Function):
