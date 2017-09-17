@@ -128,7 +128,7 @@ def mrv(e, x):
     elif e.is_Mul or e.is_Add:
         a, b = e.as_two_terms()
         return mrv_max(mrv(a, x), mrv(b, x), x)
-    elif e.is_Pow and e.base is E:
+    elif isinstance(e, exp):
         if e.exp == x:
             return {e}
         elif any(a.is_infinite for a in Mul.make_args(limitinf(e.exp, x))):
@@ -265,7 +265,7 @@ def mrv_leadterm(e, x):
     e = e.replace(lambda f: f.is_Pow and f.exp.has(x),
                   lambda f: exp(log(f.base)*f.exp))
     e = e.replace(lambda f: f.is_Mul and sum(a.is_Pow for a in f.args) > 1,
-                  lambda f: Mul(exp(Add(*[a.exp for a in f.args if a.is_Pow and a.base is E])),
+                  lambda f: Mul(exp(Add(*[a.exp for a in f.args if isinstance(a, exp)])),
                                 *[a for a in f.args if not a.is_Pow or a.base is not E]))
 
     # The positive dummy, w, is used here so log(w*2) etc. will expand.
