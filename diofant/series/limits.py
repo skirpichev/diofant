@@ -1,6 +1,6 @@
 from ..core import Dummy, Expr, Float, PoleError, Rational, S, Symbol, sympify
 from ..functions.elementary.trigonometric import cos, sin
-from .gruntz import limitinf
+from .gruntz import SignIndet, limitinf
 from .order import Order
 
 
@@ -196,6 +196,44 @@ class Limit(Expr):
                 newe = newe.subs(z, newz)
 
             r = limitinf(newe, newz)
+        except SignIndet as ex:
+            pexpr = ex.expr
+            from diofant import pprint
+            pprint(pexpr)
+            free = ex.expr.free_symbols
+            s_free = {s: Dummy(s.name, real=True) for s in free}
+            s_free_rev = {v: k for k, v in s_free.items()}
+            if len(free) > 1:
+                raise NotImplementedError
+            from diofant import Piecewise, solve
+            pexpr = pexpr.subs(s_free).rewrite(Piecewise).simplify()
+            test = pexpr.args[0][-1]
+            test = test.func(test.lhs - test.rhs, 0)
+            test = test.canonical.lhs
+            s2pos_rev = {Dummy("pos", real=True, positive=True): test}
+            s2pos = solve(test - list(s2pos_rev.keys())[0], *test.free_symbols)
+            if len(s2pos) > 1:
+                raise NotImplementedError
+            s2pos = s2pos[0]
+            s2neg_rev = {Dummy("neg", real=True, negative=True): test}
+            s2neg = solve(test - list(s2neg_rev.keys())[0], *test.free_symbols)
+            if len(s2neg) > 1:
+                raise NotImplementedError
+            s2neg = s2neg[0]
+            s2zero = solve(test, *test.free_symbols)
+            if len(s2zero) > 1:
+                raise NotImplementedError
+            s2zero = s2zero[0]
+            newe = newe.subs(s_free)
+            pprint(s2pos)
+            pprint(ex.expr.subs(s_free).subs(s2pos))
+            pprint(newe.subs(s2pos))
+            return Piecewise((limit(newe.subs(s2pos), newz, S.Infinity).subs(s2pos_rev),
+                              test > 0),
+                             (limit(newe.subs(s2neg), newz, S.Infinity).subs(s2neg_rev),
+                              test < 0),
+                             (limit(newe.subs(s2zero), newz, S.Infinity),
+                              True)).subs(s_free_rev)
         except (PoleError, ValueError, NotImplementedError):
             r = None
             if use_heuristics:

@@ -73,6 +73,15 @@ from ..functions import sign as sgn
 from ..functions import Abs, exp, log
 
 
+class SignIndet(Exception):
+    def __init__(self, expr):
+        super().__init__()
+        self.expr = expr
+
+    def __str__(self):
+        return 'Result depends on the sign of %s' % self.expr
+
+
 def compare(a, b, x):
     r"""
     Determine order relation between two functons.
@@ -140,7 +149,7 @@ def mrv(e, x):
     elif e.is_Pow and e.base is S.Exp1:
         if e.exp == x:
             return {e}
-        elif any(a.is_infinite for a in Mul.make_args(limitinf(e.exp, x))):
+        elif limitinf(e.exp, x).is_infinite:
             return mrv_max({e}, mrv(e.exp, x), x)
         else:
             return mrv(e.exp, x)
@@ -183,7 +192,11 @@ def sign(e, x):
         sign arbitrarily often at infinity (e.g. `\sin(x)`).
     """
     if not e.has(x):
-        return sgn(e).simplify()
+        s = sgn(e).simplify()
+        if s not in (-1, 0, 1):
+            raise SignIndet(s)
+        else:
+            return s
     elif e == x:
         return 1
     elif e.is_Mul:
@@ -246,7 +259,7 @@ def limitinf(e, x):
     elif sig == 0:
         return limitinf(c0, x)
     else:
-        raise NotImplementedError('Result depends on the sign of %s' % sig)
+        raise SignIndet(sig)
 
 
 @cacheit
@@ -342,7 +355,7 @@ def rewrite(e, x, w):
     for g in Omega:
         sig = sign(g.exp, x)
         if sig not in (1, -1):
-            raise NotImplementedError('Result depends on the sign of %s' % sig)
+            raise SignIndet(sig)
 
     if sig == 1:
         w = 1/w  # if g goes to oo, substitute 1/w
