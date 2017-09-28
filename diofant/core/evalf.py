@@ -1230,6 +1230,36 @@ def evalf(x, prec, options):
 class EvalfMixin:
     """Mixin class adding evalf capability."""
 
+    def evalfng(self, n=15, maxn=110):
+        from diofant.core.numbers import Float, I, nan
+        from diofant.utilities import lambdify
+
+        newprec = prec = dps_to_prec(n)
+        maxprec = dps_to_prec(maxn)
+
+        with workprec(prec):
+            if self.is_number:
+                e = lambdify((), self, "mpmath")
+                old = nan
+                while True:
+                    with workprec(newprec):
+                        new = e()
+                    new = Float(str(new.real), n) + I*Float(str(new.imag), n)
+                    if old == new:
+                        return old
+                    else:
+                        old = new
+                        oldprec = newprec
+                        newprec *= 2
+                    if oldprec > maxprec:
+                        raise PrecisionExhausted("Try use higher maxn.")
+            else:
+                if self.is_Symbol:
+                    return self
+                else:
+                    return self.func(*[a.evalfng(n, maxn)
+                                       for a in self.args])
+
     def evalf(self, n=15, subs=None, maxn=110, chop=False, strict=False, quad=None):
         """
         Evaluate the given formula to an accuracy of n digits.
