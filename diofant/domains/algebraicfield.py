@@ -30,10 +30,21 @@ class AlgebraicField(Field, CharacteristicZero, SimpleDomain):
         ext = [sympify(_).as_expr() for _ in ext]
 
         from ..polys.numberfields import primitive_element
+        from ..polys.rootoftools import RootOf
 
         minpoly, coeffs, H = primitive_element(ext)
 
-        self.ext = sum(c*e for c, e in zip(coeffs, ext))
+        # canonicalization
+
+        ext = sum(c*e for c, e in zip(coeffs, ext))
+
+        for n in range(minpoly.degree()):
+            r = RootOf(minpoly, n)
+            if (r - ext).evalf(2, chop=True).is_zero:
+                ext = r
+                break
+
+        self.ext = ext
         self.minpoly = minpoly
         self.mod = minpoly.rep
         self.domain = dom

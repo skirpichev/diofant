@@ -545,7 +545,7 @@ def test_Domain_convert():
     assert ZZ.convert(ALG.new(1), ALG) == ZZ(1)
     pytest.raises(CoercionFailed, lambda: ZZ.convert(ALG.new([1, 1]), ALG))
 
-    assert EX.convert(ALG.new([1, 1]), ALG) == sqrt(2) + sqrt(3) + 1
+    assert EX.convert(ALG.new([1, 1]), ALG) == 1 + RootOf(z**4 - 10*z**2 + 1, 3)
 
     ALG2 = QQ.algebraic_field(sqrt(2))
     a2 = ALG2.from_diofant(sqrt(2))

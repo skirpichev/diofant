@@ -810,4 +810,5 @@ def test_minpoly_domain():
 
 def test_sympyissue_11553():
     eqs = (x + y + 1, x + GoldenRatio)
-    assert solve(eqs, x, y) == [{x: -GoldenRatio, y: -1 + GoldenRatio}]
+    assert solve(eqs, x, y) == [{x: -GoldenRatio.expand(func=True),
+                                 y: -1 + GoldenRatio.expand(func=True)}]
