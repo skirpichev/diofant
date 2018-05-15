@@ -2,7 +2,6 @@
 
 from ..core import Basic
 from ..core.compatibility import HAS_GMPY
-from ..polys.orderings import lex
 from ..polys.polyerrors import CoercionFailed, UnificationFailed
 from ..polys.polyutils import _unify_gens
 from ..printing.defaults import DefaultPrinting
@@ -189,11 +188,7 @@ class Domain(DefaultPrinting):
             else:
                 cls = K1.__class__
 
-            if cls.is_PolynomialRing and (self.is_PolynomialRing or K1.is_PolynomialRing):
-                order = self.order if self.is_PolynomialRing else K1.order
-                return cls(domain, symbols, order)
-            else:
-                return cls(domain, symbols)
+            return cls(domain, symbols)
 
         def mkinexact(cls, K0, K1):
             prec = max(K0.precision, K1.precision)
@@ -255,7 +250,7 @@ class Domain(DefaultPrinting):
     def poly_ring(self, *symbols, **kwargs):
         """Returns a polynomial ring, i.e. `K[X]`. """
         from ..polys import PolynomialRing
-        return PolynomialRing(self, symbols, kwargs.get("order", lex))
+        return PolynomialRing(self, symbols)
 
     def frac_field(self, *symbols, **kwargs):
         """Returns a fraction field, i.e. `K(X)`. """

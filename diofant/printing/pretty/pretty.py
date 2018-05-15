@@ -1556,10 +1556,6 @@ class PrettyPrinter(Printer):
     def _print_PolynomialRing(self, expr):
         args = list(expr.symbols)
 
-        if not expr.order.is_default:
-            order = prettyForm(*prettyForm("order=").right(self._print(expr.order)))
-            args.append(order)
-
         pform = self._print_seq(args, '[', ']')
         pform = prettyForm(*pform.left(self._print(expr.domain)))
 

@@ -33,7 +33,7 @@ from .polyutils import _dict_reorder, _parallel_dict_from_expr, expr_from_dict
 __all__ = ('PolynomialRing', 'ring', 'sring', 'vring')
 
 
-def ring(symbols, domain, order=lex):
+def ring(symbols, domain):
     """Construct a polynomial ring returning ``(ring, x_1, ..., x_n)``.
 
     Parameters
@@ -41,7 +41,6 @@ def ring(symbols, domain, order=lex):
 
     symbols : str, Symbol/Expr or sequence of str, Symbol/Expr (non-empty)
     domain : :class:`~diofant.domains.domain.Domain` or coercible
-    order : :class:`~diofant.polys.polyoptions.Order` or coercible, optional, defaults to ``lex``
 
     Examples
     ========
@@ -54,11 +53,11 @@ def ring(symbols, domain, order=lex):
     >>> type(_)
     <class 'diofant.polys.rings.PolyElement'>
     """
-    _ring = PolynomialRing(domain, symbols, order)
+    _ring = PolynomialRing(domain, symbols)
     return (_ring,) + _ring.gens
 
 
-def vring(symbols, domain, order=lex):
+def vring(symbols, domain):
     """Construct a polynomial ring and inject ``x_1, ..., x_n`` into the global namespace.
 
     Parameters
@@ -66,7 +65,6 @@ def vring(symbols, domain, order=lex):
 
     symbols : str, Symbol/Expr or sequence of str, Symbol/Expr (non-empty)
     domain : :class:`~diofant.domains.domain.Domain` or coercible
-    order : :class:`~diofant.polys.polyoptions.Order` or coercible, optional, defaults to ``lex``
 
     Examples
     ========
@@ -78,7 +76,7 @@ def vring(symbols, domain, order=lex):
     >>> type(_)
     <class 'diofant.polys.rings.PolyElement'>
     """
-    _ring = PolynomialRing(domain, symbols, order)
+    _ring = PolynomialRing(domain, symbols)
     pollute([sym.name for sym in _ring.symbols], _ring.gens)
     return _ring
 
@@ -122,7 +120,7 @@ def sring(exprs, *symbols, **options):
         coeffs = sum((list(rep.values()) for rep in reps), [])
         opt.domain, _ = construct_domain(coeffs, opt=opt)
 
-    _ring = PolynomialRing(opt.domain, opt.gens, opt.order)
+    _ring = PolynomialRing(opt.domain, opt.gens)
     polys = list(map(_ring.from_dict, reps))
 
     if single:
@@ -161,13 +159,12 @@ class PolynomialRing(Ring, CompositeDomain, IPolys):
     has_assoc_Ring = True
     has_assoc_Field = True
 
-    def __new__(cls, domain, symbols, order=lex):
+    def __new__(cls, domain, symbols):
         symbols = tuple(_parse_symbols(symbols))
         ngens = len(symbols)
         domain = DomainOpt.preprocess(domain)
-        order = OrderOpt.preprocess(order)
 
-        _hash = hash((cls.__name__, symbols, ngens, domain, order))
+        _hash = hash((cls.__name__, symbols, ngens, domain))
         obj = _ring_cache.get(_hash)
 
         if obj is None:
@@ -180,15 +177,12 @@ class PolynomialRing(Ring, CompositeDomain, IPolys):
             obj.symbols = symbols
             obj.ngens = ngens
             obj.domain = domain
-            obj.order = order
 
             obj.zero_monom = (0,)*ngens
             obj.gens = obj._gens()
             obj._gens_set = set(obj.gens)
 
             obj._one = [(obj.zero_monom, domain.one)]
-
-            obj.leading_expv = lambda f: max(f, key=order)
 
             obj.rep = str(domain) + '[' + ','.join(map(str, symbols)) + ']'
 
@@ -202,6 +196,9 @@ class PolynomialRing(Ring, CompositeDomain, IPolys):
             _ring_cache[_hash] = obj
 
         return obj
+
+    def leading_expv(self, f, order=lex):
+        return max(f, key=order)
 
     def _gens(self):
         """Return a list of polynomial generators. """
@@ -223,8 +220,8 @@ class PolynomialRing(Ring, CompositeDomain, IPolys):
     def __ne__(self, other):
         return self is not other
 
-    def clone(self, symbols=None, domain=None, order=None):
-        return self.__class__(domain or self.domain, symbols or self.symbols, order or self.order)
+    def clone(self, symbols=None, domain=None):
+        return self.__class__(domain or self.domain, symbols or self.symbols)
 
     def monomial_basis(self, i):
         """Return the ith-basis element. """
@@ -1553,7 +1550,7 @@ class PolyElement(DomainElement, DefaultPrinting, CantSympify, dict):
         else:
             return tuple(map(min, zip(*self.itermonoms())))
 
-    def leading_expv(self):
+    def leading_expv(self, order=lex):
         """Leading monomial tuple according to the monomial ordering.
 
         Examples
@@ -1565,9 +1562,7 @@ class PolyElement(DomainElement, DefaultPrinting, CantSympify, dict):
         (4, 0, 0)
         """
         if self:
-            return self.ring.leading_expv(self)
-        else:
-            return
+            return self.ring.leading_expv(self, order)
 
     def _get_coeff(self, expv):
         return self.get(expv, self.ring.domain.zero)
@@ -1662,15 +1657,11 @@ class PolyElement(DomainElement, DefaultPrinting, CantSympify, dict):
             p[expv] = self[expv]
         return p
 
-    def _sorted(self, seq, order):
-        if order is None:
-            order = self.ring.order
-        else:
-            order = OrderOpt.preprocess(order)
-
+    def _sorted(self, seq, order=lex):
+        order = OrderOpt.preprocess(order)
         return sorted(seq, key=lambda monom: order(monom[0]), reverse=True)
 
-    def coeffs(self, order=None):
+    def coeffs(self, order=lex):
         """Ordered list of polynomial coefficients.
 
         Parameters
@@ -1689,9 +1680,9 @@ class PolyElement(DomainElement, DefaultPrinting, CantSympify, dict):
         >>> f.coeffs(grlex)
         [1, 2]
         """
-        return [ coeff for _, coeff in self.terms(order) ]
+        return [coeff for _, coeff in self.terms(order)]
 
-    def monoms(self, order=None):
+    def monoms(self, order=lex):
         """Ordered list of polynomial monomials.
 
         Parameters
@@ -1710,9 +1701,9 @@ class PolyElement(DomainElement, DefaultPrinting, CantSympify, dict):
         >>> f.monoms(grlex)
         [(1, 7), (2, 3)]
         """
-        return [ monom for monom, _ in self.terms(order) ]
+        return [monom for monom, _ in self.terms(order)]
 
-    def terms(self, order=None):
+    def terms(self, order=lex):
         """Ordered list of polynomial terms.
 
         Parameters

@@ -16,9 +16,8 @@ ALG = QQ.algebraic_field(sqrt(2), sqrt(3))
 
 
 def test_build_order():
-    R = QQ.poly_ring(x, y, order=build_product_order((("lex", x),
-                                                      ("ilex", y)), (x, y)))
-    assert R.order((1, 5)) == ((1,), (-5,))
+    order = build_product_order((("lex", x), ("ilex", y)), (x, y))
+    assert order((1, 5)) == ((1,), (-5,))
 
 
 def test_globalring():

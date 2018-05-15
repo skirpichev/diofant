@@ -147,8 +147,8 @@ class ReprPrinter(Printer):
         return "%s('%s')" % (expr.__class__.__name__, expr.name)
 
     def _print_PolynomialRing(self, ring):
-        return "%s(%s, %s, %s)" % (ring.__class__.__name__,
-                                   self._print(ring.domain), self._print(ring.symbols), self._print(ring.order))
+        return "%s(%s, %s)" % (ring.__class__.__name__,
+                                   self._print(ring.domain), self._print(ring.symbols))
 
     def _print_GMPYIntegerRing(self, expr):
         return "%s()" % expr.__class__.__name__

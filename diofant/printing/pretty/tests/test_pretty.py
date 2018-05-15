@@ -12,8 +12,7 @@ from diofant import (FF, QQ, RR, ZZ, Add, AlgebraicNumber, And, Basic,
                      Nand, Ne, Nor, Not, O, Or, Pow, Product, Range, Rational,
                      Ray, RealField, RootOf, RootSum, S, Segment, Subs, Sum,
                      Symbol, SymmetricDifference, Trace, Tuple, Union, Xor,
-                     cbrt, conjugate, grlex, groebner, ilex, oo, pi, root,
-                     symbols)
+                     cbrt, conjugate, groebner, oo, pi, root, symbols)
 from diofant.abc import a, b, c, d, e, f, k, l, lamda, m, n, t, w, x, y, z
 from diofant.core.trace import Tr
 from diofant.diffgeom import BaseVectorField
@@ -3553,16 +3552,6 @@ def test_pretty_Domain():
 
     assert pretty(expr) == "ZZ(x, y)"
     assert upretty(expr) == "ℤ(x, y)"
-
-    expr = QQ.poly_ring(x, y, order=grlex)
-
-    assert pretty(expr) == "QQ[x, y, order=grlex]"
-    assert upretty(expr) == "ℚ[x, y, order=grlex]"
-
-    expr = QQ.poly_ring(x, y, order=ilex)
-
-    assert pretty(expr) == "QQ[x, y, order=ilex]"
-    assert upretty(expr) == "ℚ[x, y, order=ilex]"
 
 
 def test_pretty_prec():

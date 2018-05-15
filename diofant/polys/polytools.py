@@ -5710,7 +5710,7 @@ class GroebnerBasis(Basic):
         except PolificationFailed as exc:
             raise ComputationFailed('groebner', len(F), exc)
 
-        ring = PolynomialRing(opt.domain, opt.gens, opt.order)
+        ring = PolynomialRing(opt.domain, opt.gens)
 
         if not ring.domain.is_Exact:
             raise ValueError('Domain must be exact, got %s' % ring.domain)
@@ -5718,7 +5718,7 @@ class GroebnerBasis(Basic):
         polys = [ring.from_dict(_.rep.to_dict())
                  for _ in polys if not _.is_zero]
 
-        G = _groebner(polys, ring, method=opt.method)
+        G = _groebner(polys, ring, method=opt.method, order=opt.order)
         G = [Poly._from_dict(g, opt) for g in G]
 
         return cls._new(G, opt)
