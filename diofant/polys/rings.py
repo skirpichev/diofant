@@ -366,7 +366,7 @@ class PolynomialRing(Ring, CompositeDomain, IPolys):
             raise ValueError("%s is not a composite domain" % self.domain)
 
     def to_field(self):
-        return self.domain.frac_field(*self.symbols, order=self.order)
+        return self.domain.frac_field(*self.symbols)
 
     @property
     def is_univariate(self):

@@ -10,7 +10,6 @@ from ..domains.domainelement import DomainElement
 from ..domains.field import Field
 from ..printing.defaults import DefaultPrinting
 from ..utilities.magic import pollute
-from .orderings import lex
 from .polyerrors import CoercionFailed, GeneratorsError
 from .rings import PolyElement, PolynomialRing
 
@@ -18,15 +17,15 @@ from .rings import PolyElement, PolynomialRing
 __all__ = ('FractionField', 'field', 'vfield')
 
 
-def field(symbols, domain, order=lex):
+def field(symbols, domain):
     """Construct new rational function field returning (field, x1, ..., xn). """
-    _field = FractionField(domain, symbols, order)
+    _field = FractionField(domain, symbols)
     return (_field,) + _field.gens
 
 
-def vfield(symbols, domain, order=lex):
+def vfield(symbols, domain):
     """Construct new rational function field and inject generators into global namespace. """
-    _field = FractionField(domain, symbols, order)
+    _field = FractionField(domain, symbols)
     pollute([sym.name for sym in _field.symbols], _field.gens)
     return _field
 
@@ -42,14 +41,13 @@ class FractionField(Field, CompositeDomain):
     has_assoc_Ring = True
     has_assoc_Field = True
 
-    def __new__(cls, domain, symbols, order=lex):
-        ring = PolynomialRing(domain, symbols, order)
+    def __new__(cls, domain, symbols):
+        ring = PolynomialRing(domain, symbols)
         symbols = ring.symbols
         ngens = ring.ngens
         domain = ring.domain
-        order = ring.order
 
-        _hash = hash((cls.__name__, symbols, ngens, domain, order))
+        _hash = hash((cls.__name__, symbols, ngens, domain))
         obj = _field_cache.get(_hash)
 
         if obj is None:
@@ -59,7 +57,6 @@ class FractionField(Field, CompositeDomain):
             obj.symbols = symbols
             obj.ngens = ngens
             obj.domain = domain
-            obj.order = order
 
             obj.zero = obj.dtype(ring.zero)
             obj.one = obj.dtype(ring.one)
@@ -181,7 +178,7 @@ class FractionField(Field, CompositeDomain):
             return self.field_new(frac)
 
     def to_ring(self):
-        return self.domain.poly_ring(*self.symbols, order=self.order)
+        return self.domain.poly_ring(*self.symbols)
 
     def to_diofant(self, a):
         """Convert `a` to a Diofant object. """

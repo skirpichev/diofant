@@ -3564,9 +3564,6 @@ def test_pretty_Domain():
     assert pretty(expr) == "QQ[x, y, order=ilex]"
     assert upretty(expr) == "ℚ[x, y, order=ilex]"
 
-    expr = ZZ.frac_field(x, y, order=grlex)
-    assert upretty(expr) == "ℤ(x, y, order=grlex)"
-
 
 def test_pretty_prec():
     assert xpretty(Float(0.3), full_prec=True, wrap_line=False) == "0.300000000000000"

@@ -194,14 +194,12 @@ def test_PolynomialRing():
 
 
 def test_FractionField():
-    sT(ZZ.frac_field("x"), "FractionField(%s, (Symbol('x'),), "
-                           "LexOrder())" % repr(ZZ))
-    sT(QQ.frac_field("x", "y", order=grlex),
-       "FractionField(%s, (Symbol('x'), Symbol('y')), "
-       "GradedLexOrder())" % repr(QQ))
+    sT(ZZ.frac_field("x"), "FractionField(%s, (Symbol('x'),))" % repr(ZZ))
+    sT(QQ.frac_field("x", "y"),
+       "FractionField(%s, (Symbol('x'), Symbol('y')))" % repr(QQ))
     sT(ZZ.poly_ring("t").frac_field("x", "y", "z"),
        "FractionField(PolynomialRing(%s, (Symbol('t'),), LexOrder()), "
-       "(Symbol('x'), Symbol('y'), Symbol('z')), LexOrder())" % repr(ZZ))
+       "(Symbol('x'), Symbol('y'), Symbol('z')))" % repr(ZZ))
 
 
 def test_PolyElement():
@@ -218,7 +216,7 @@ def test_FracElement():
     F, x, y = field("x,y", ZZ)
     g = F.domain.dtype
     assert repr((3*x**2*y + 1)/(x - y**2)) == ("FracElement(FractionField(%s, (Symbol('x'), "
-                                               "Symbol('y')), LexOrder()), [((2, 1), %s), "
+                                               "Symbol('y'))), [((2, 1), %s), "
                                                "((0, 0), %s)], [((1, 0), %s), "
                                                "((0, 2), %s)])" % (repr(ZZ),
                                                                    repr(g(3)),

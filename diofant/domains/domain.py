@@ -178,7 +178,6 @@ class Domain(DefaultPrinting):
 
             domain = self_ground.unify(K1_ground)
             symbols = _unify_gens(self_symbols, K1_symbols)
-            order = self.order if self.is_Composite else K1.order
 
             if ((self.is_FractionField and K1.is_PolynomialRing or
                  K1.is_FractionField and self.is_PolynomialRing) and
@@ -190,7 +189,11 @@ class Domain(DefaultPrinting):
             else:
                 cls = K1.__class__
 
-            return cls(domain, symbols, order)
+            if cls.is_PolynomialRing and (self.is_PolynomialRing or K1.is_PolynomialRing):
+                order = self.order if self.is_PolynomialRing else K1.order
+                return cls(domain, symbols, order)
+            else:
+                return cls(domain, symbols)
 
         def mkinexact(cls, K0, K1):
             prec = max(K0.precision, K1.precision)
@@ -257,7 +260,7 @@ class Domain(DefaultPrinting):
     def frac_field(self, *symbols, **kwargs):
         """Returns a fraction field, i.e. `K(X)`. """
         from ..polys import FractionField
-        return FractionField(self, symbols, kwargs.get("order", lex))
+        return FractionField(self, symbols)
 
     def is_one(self, a):
         """Returns True if ``a`` is one. """

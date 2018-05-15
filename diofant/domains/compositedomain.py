@@ -17,6 +17,9 @@ class CompositeDomain(Domain):
     def inject(self, *symbols):
         """Inject generators into this domain. """
         if not (set(self.symbols) & set(symbols)):
-            return self.__class__(self.domain, self.symbols + symbols, self.order)
+            if hasattr(self, 'order'):
+                return self.__class__(self.domain, self.symbols + symbols, self.order)
+            else:
+                return self.__class__(self.domain, self.symbols + symbols)
         else:
             raise GeneratorsError("common generators in %s and %s" % (self.symbols, symbols))
