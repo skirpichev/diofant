@@ -18,7 +18,7 @@ from ..utilities import lambdify, numbered_symbols, sift
 from ..utilities.iterables import uniq
 from .orthopolys import dup_chebyshevt
 from .polyconfig import query
-from .polyerrors import NotAlgebraic
+from .polyerrors import CoercionFailed, NotAlgebraic
 from .polytools import (Poly, PurePoly, degree, factor_list, groebner, lcm,
                         parallel_poly_from_expr, poly_from_expr, resultant)
 from .polyutils import dict_from_expr, expr_from_dict
@@ -672,7 +672,9 @@ def primitive_element(extension, **args):
     extension = list(uniq(extension))
 
     x = Dummy('x')
-    domain = args.get('domain', QQ)
+    gens = set().union(*(e.free_symbols for e in extension))
+    domain = args.get('domain', QQ.frac_field(*gens) if gens else QQ)
+
     F, Y = zip(*[(minimal_polynomial(e, domain=domain).replace(y), y)
                  for e, y in zip(extension, numbered_symbols('y', cls=Dummy))])
 
@@ -683,8 +685,9 @@ def primitive_element(extension, **args):
         *H, g = groebner(F + (f,), Y + (x,), domain=domain, polys=True)
 
         for i, (h, y) in enumerate(zip(H, Y)):
-            H[i] = (y - h).eject(*Y).retract(field=True, extension=True)
-            if not (H[i].domain.is_RationalField or H[i].domain.is_Algebraic):
+            try:
+                H[i] = Poly(y - h, x, domain=domain)
+            except CoercionFailed:
                 break  # G is not a triangular set
             else:
                 H[i] = H[i].set_domain(domain)
@@ -703,7 +706,7 @@ def primitive_element(extension, **args):
 
     H = [h.rem(g).rep.all_coeffs() for y, h in zip(Y, H)]
 
-    _, g = PurePoly(g).clear_denoms(convert=True)
+    _, g = PurePoly(g).clear_denoms()
 
     if g.LC() != 1:
         d = functools.reduce(operator.mul,
