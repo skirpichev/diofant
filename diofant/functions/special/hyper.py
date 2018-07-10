@@ -4,11 +4,12 @@ from functools import reduce
 
 import mpmath
 
-from .. import (acosh, acoth, asin, asinh, atan, atanh, cos, cosh, exp, log,
-                sin, sinh, sqrt)
+from .. import (acosh, acoth, asin, asinh, atan, atanh, cos, cosh, exp,
+                factorial, ff, log, sin, sinh, sqrt)
 from ...core import (Derivative, Dummy, Expr, Function, I, Integer, Mod, Mul,
-                     Ne, Rational, S, Tuple, ilcm, oo, pi, zoo)
+                     Ne, Rational, S, Tuple, ilcm, oo, pi, prod, zoo)
 from ...core.function import ArgumentIndexError
+from ...series import Order
 
 
 class TupleArg(Tuple):
@@ -311,6 +312,15 @@ class hyper(TupleParametersBase):
         with mpmath.workprec(prec):
             res = mpmath.hyper(ap, bp, z, eliminate=False)
         return Expr._from_mpmath(res, prec)
+
+    def _eval_nseries(self, x, n, logx):
+        if (x.free_symbols & set().union(*[_.free_symbols for _ in self.ap + self.bq]) or
+                self.radius_of_convergence == 0):
+            return super(hyper, self)._eval_nseries(x, n, logx)
+        else:
+            return sum((x**k/factorial(k)*prod([ff(_, k) for _ in self.ap])/
+                        prod([ff(_, k) for _ in self.bq]) for k in range(n)),
+                       Integer(0)) + Order(x**n, x)
 
 
 class meijerg(TupleParametersBase):
