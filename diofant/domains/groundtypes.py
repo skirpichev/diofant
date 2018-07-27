@@ -22,7 +22,7 @@ PythonComplex = builtins.complex
 PythonRational = fractions.Fraction
 
 
-if HAS_GMPY:
+if HAS_GMPY == 'gmpy':
     from gmpy2 import (  # noqa: N812
         mpz as GMPYInteger,
         mpq as GMPYRational,
@@ -34,6 +34,28 @@ if HAS_GMPY:
         lcm as gmpy_lcm,
         isqrt as gmpy_sqrt,
         qdiv as gmpy_qdiv)
+elif HAS_GMPY == 'gmpy_ctypes':
+    from gmpy_ctypes import (mpz as GMPYInteger,  # noqa: N812
+                             mpq as GMPYRational,
+                             gcd as gmpy_gcd,
+                             lcm as gmpy_lcm,
+                             gcdext as gmpy_gcdex)
+
+    def gmpy_factorial(x):
+        from gmpy_ctypes import fac
+        return fac(int(x))
+
+    def gmpy_numer(x):
+        return x.numerator
+
+    def gmpy_denom(x):
+        return x.denominator
+
+    def gmpy_sqrt(x):
+        return GMPYInteger(int(x**GMPYRational(1, 2)))
+
+    def gmpy_qdiv(x, y):
+        return GMPYRational(x, y)
 else:
     class GMPYInteger:
         def __init__(self, obj):

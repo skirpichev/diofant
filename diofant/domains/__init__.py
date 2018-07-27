@@ -22,7 +22,7 @@ from .expressiondomain import EX, ExpressionDomain  # noqa: F401
 from .groundtypes import PythonRational  # noqa: F401
 from ..core.compatibility import GROUND_TYPES
 
-_GROUND_TYPES_MAP = {'gmpy': (FF_gmpy, ZZ_gmpy, QQ_gmpy),
+_GROUND_TYPES_MAP = {GROUND_TYPES: (FF_gmpy, ZZ_gmpy, QQ_gmpy),
                      'python': (FF_python, ZZ_python, QQ_python)}
 FF, ZZ, QQ = _GROUND_TYPES_MAP[GROUND_TYPES]
 GF = FF
