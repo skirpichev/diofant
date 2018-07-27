@@ -429,17 +429,21 @@ gmpy = import_module('gmpy2', min_module_version='2.1.0',
                      module_version_attr='version',
                      module_version_attr_call_args=())
 if gmpy:
-    HAS_GMPY = 2
+    HAS_GMPY = "gmpy"
 else:
-    HAS_GMPY = 0
+    gmpy = import_module('gmpy_cffi')
+    if gmpy:
+        HAS_GMPY = "gmpy_cffi"
+    else:
+        HAS_GMPY = None
 
 if GROUND_TYPES == 'auto':
     if HAS_GMPY:
-        GROUND_TYPES = 'gmpy'
+        GROUND_TYPES = HAS_GMPY
     else:
         GROUND_TYPES = 'python'
 
-if GROUND_TYPES == 'gmpy' and not HAS_GMPY:
+if GROUND_TYPES in ('gmpy', 'gmpy_cffi') and not HAS_GMPY:
     from warnings import warn
     warn("gmpy library is not installed, switching to 'python' ground types")
     GROUND_TYPES = 'python'
@@ -447,7 +451,7 @@ if GROUND_TYPES == 'gmpy' and not HAS_GMPY:
 # DIOFANT_INTS is a tuple containing the base types for valid integer types.
 DIOFANT_INTS = (int,)
 
-if GROUND_TYPES == 'gmpy':
+if GROUND_TYPES:
     DIOFANT_INTS += (gmpy.mpz,)
 
 if GROUND_TYPES == 'python':
