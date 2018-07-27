@@ -59,7 +59,7 @@ class Field(Ring):
         p = ring.gcd(a.numerator, b.numerator)
         q = ring.lcm(a.denominator, b.denominator)
 
-        return self.convert(p, ring)/q
+        return self.new(p, q)
 
     def lcm(self, a, b):
         """
@@ -79,4 +79,4 @@ class Field(Ring):
         p = ring.lcm(a.numerator, b.numerator)
         q = ring.gcd(a.denominator, b.denominator)
 
-        return self.convert(p, ring)/q
+        return self.new(p, q)

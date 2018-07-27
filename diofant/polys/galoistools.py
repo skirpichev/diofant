@@ -1057,7 +1057,7 @@ def gf_random(n, p, K):
     >>> gf_random(10, 5, ZZ) #doctest: +SKIP
     [1, 2, 3, 2, 1, 1, 1, 2, 0, 4, 2]
     """
-    return [K.one] + [ K(int(random.uniform(0, p))) for i in range(n) ]
+    return [K.one] + [ K(int(random.uniform(0, int(p)))) for i in range(n) ]
 
 
 def gf_irreducible(n, p, K):
