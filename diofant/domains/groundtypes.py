@@ -52,7 +52,7 @@ elif HAS_GMPY == 'gmpy_ctypes':
         return x.denominator
 
     def gmpy_sqrt(x):
-        return GMPYInteger(int(x**GMPYRational(1, 2)))
+        return GMPYInteger(mlib.isqrt(int(x)))
 
     def gmpy_qdiv(x, y):
         return GMPYRational(x, y)
