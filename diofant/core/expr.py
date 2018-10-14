@@ -175,6 +175,24 @@ class Expr(Basic, EvalfMixin, metaclass=ManagedProperties):
         return Mul(other, Pow(self, S.NegativeOne))
 
     @_sympifyit('other', NotImplemented)
+    def __divmod__(self, other):
+        from ..polys import PolificationFailed, parallel_poly_from_expr
+        try:
+            a, b = parallel_poly_from_expr([self, other])[0]
+        except PolificationFailed as exc:
+            return NotImplemented
+        return tuple(map(lambda x: x.as_expr(), a.div(b, auto=False)))
+
+    @_sympifyit('other', NotImplemented)
+    def __rdivmod__(self, other):
+        from ..polys import PolificationFailed, parallel_poly_from_expr
+        try:
+            a, b = parallel_poly_from_expr([self, other])[0]
+        except PolificationFailed as exc:
+            return NotImplemented
+        return tuple(map(lambda x: x.as_expr(), b.div(a, auto=False)))
+
+    @_sympifyit('other', NotImplemented)
     @call_highest_priority('__rmod__')
     def __mod__(self, other):
         return Mod(self, other)
