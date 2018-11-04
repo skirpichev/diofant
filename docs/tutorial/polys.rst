@@ -5,14 +5,38 @@
 ..
     >>> init_printing(pretty_print=True, use_unicode=True)
 
-We show here some functions, that provide different algorithms dealing
-with polynomials in the form of Diofant expression.
+Polynomial expressions can be transformed into polynomials by the method
+:meth:`~diofant.core.expr.Expr.as_poly`::
 
-Note, that coefficients of a polynomial can be elements of any
-commutative ring, this ring is called the ``domain`` of the polynomial
-ring and may be specified as a keyword parameter for functions.
-Polynomial generators also can be specified via an arbitrary number of
-arguments after required arguments of functions.
+    >>> (x + y)*(y - 2*z)
+    (x + y)⋅(y - 2⋅z)
+    >>> _.as_poly()
+    Poly(x*y - 2*x*z + y**2 - 2*y*z, x, y, z, domain='ZZ')
+
+Coefficients of a polynomial can be elements of any commutative ring,
+this ring is called the ``domain`` of the polynomial ring and may be
+specified as a keyword parameter.  But usually this is not neecessary
+and the coefficients domain will be autodetected.  For example, if a
+polynomial expression contains rationals::
+
+    >>> (3*x/2 + y)*(z - 1)
+    ⎛3⋅x    ⎞
+    ⎜─── + y⎟⋅(z - 1)
+    ⎝ 2     ⎠
+    >>> _.as_poly()
+    Poly(3/2*x*z - 3/2*x + y*z - y, x, y, z, domain='QQ')
+
+Symbols are considered to be polynomial generators, unless they
+are explicitely excluded, in which case they are ajoined to
+the coefficient ring::
+
+    >>> e = (x + 2*z)*y
+    >>> e.as_poly()
+    Poly(x*y + 2*y*z, x, y, z, domain='ZZ')
+    >>> e.as_poly(x, y)
+    Poly(x*y + 2*z*y, x, y, domain='ZZ[z]')
+    >>> e.as_poly(domain=ZZ.poly_ring(z))
+    Poly(x*y + 2*z*y, x, y, domain='ZZ[z]')
 
 Division
 ========
