@@ -339,8 +339,8 @@ class Basic:
                resulting sorted list is then processed as an iterable container
                (see previous).
 
-        If the keyword ``simultaneous`` is True, the subexpressions will not be
-        evaluated until all the substitutions have been made.
+        The subexpressions will not be evaluated until all the substitutions
+        have been made.
 
         Examples
         ========
@@ -365,20 +365,13 @@ class Basic:
         >>> (x**2 + x**4).xreplace({x**2: y})
         x**4 + y
 
-        To delay evaluation until all substitutions have been made,
-        set the keyword ``simultaneous`` to True:
+        The subexpressions will not be evaluated until all the substitutions
+        have been made.
 
         >>> (x/y).subs([(x, 0), (y, 0)])
         0
-        >>> (x/y).subs([(x, 0), (y, 0)], simultaneous=True)
-        nan
-
-        This has the added feature of not allowing subsequent substitutions
-        to affect those already made:
 
         >>> ((x + y)/y).subs({x + y: y, y: x + y})
-        1
-        >>> ((x + y)/y).subs({x + y: y, y: x + y}, simultaneous=True)
         y/(x + y)
 
         In order to obtain a canonical result, unordered iterables are
@@ -471,26 +464,18 @@ class Basic:
                 sequence = sorted(((k, v) for (k, v) in sequence.items()),
                                   key=default_sort_key)
 
-        if kwargs.pop('simultaneous', False):  # XXX should this be the default for dict subs?
-            reps = {}
-            rv = self
-            m = Dummy()
-            for old, new in sequence:
-                d = Dummy(commutative=new.is_commutative)
-                # using d*m so Subs will be used on dummy variables
-                # in things like Derivative(f(x, y), x) in which x
-                # is both free and bound
-                rv = rv._subs(old, d*m, **kwargs)
-                reps[d] = new
-            reps[m] = Integer(1)  # get rid of m
-            return rv.xreplace(reps)
-        else:
-            rv = self
-            for old, new in sequence:
-                rv = rv._subs(old, new, **kwargs)
-                if not isinstance(rv, Basic):
-                    break
-            return rv
+        reps = {}
+        rv = self
+        m = Dummy()
+        for old, new in sequence:
+            d = Dummy(commutative=new.is_commutative)
+            # using d*m so Subs will be used on dummy variables
+            # in things like Derivative(f(x, y), x) in which x
+            # is both free and bound
+            rv = rv._subs(old, d*m, **kwargs)
+            reps[d] = new
+        reps[m] = Integer(1)  # get rid of m
+        return rv.xreplace(reps)
 
     @cacheit
     def _subs(self, old, new, **hints):

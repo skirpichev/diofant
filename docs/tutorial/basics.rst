@@ -94,11 +94,9 @@ same variable:
      ⎝x    ⎠
     x
 
-Use flag ``simultaneous`` to do all substitutions at once.
+Substituions happen at once.
 
     >>> (x - y).subs({x: y, y: x})
-    0
-    >>> (x - y).subs({x: y, y: x}, simultaneous=True)
     -x + y
 
 Numerics

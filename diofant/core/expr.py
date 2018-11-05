@@ -479,8 +479,7 @@ class Expr(Basic, EvalfMixin, metaclass=ManagedProperties):
         if wrt == free:
             # try 0 (for a) and 1 (for b)
             try:
-                a = expr.subs(list(zip(free, [0]*len(free))),
-                              simultaneous=True).evalf(15, strict=False)
+                a = expr.subs(list(zip(free, [0]*len(free)))).evalf(15, strict=False)
                 if a is nan:
                     # evaluation may succeed when substitution fails
                     a = expr._random(None, 0, 0, 0, 0)
@@ -491,8 +490,7 @@ class Expr(Basic, EvalfMixin, metaclass=ManagedProperties):
                 a = None
             if a is not None and a is not nan:
                 try:
-                    b = expr.subs(list(zip(free, [1]*len(free))),
-                                  simultaneous=True).evalf(15, strict=False)
+                    b = expr.subs(list(zip(free, [1]*len(free)))).evalf(15, strict=False)
                     if b is nan:
                         # evaluation may succeed when substitution fails
                         b = expr._random(None, 1, 0, 1, 0)

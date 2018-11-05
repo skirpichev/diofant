@@ -722,7 +722,7 @@ def _real_to_rational(expr, tolerance=None):
                 else:
                     r = Integer(0)
         reps[key] = r
-    return p.subs(reps, simultaneous=True)
+    return p.subs(reps)
 
 
 def nsimplify(expr, constants=[], tolerance=None, full=False, rational=None):
