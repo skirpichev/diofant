@@ -9,6 +9,7 @@
 # removed automatically).
 #
 
+import doctest
 import inspect
 import os
 import sys
@@ -24,7 +25,7 @@ warnings.simplefilter('error', UserWarning)
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.linkcode', 'sphinx.ext.mathjax',
               'sphinx.ext.graphviz', 'sphinx.ext.intersphinx',
               'sphinx.ext.extlinks', 'sphinx.ext.napoleon',
-              'sphinxcontrib.bibtex']
+              'sphinx.ext.doctest', 'sphinxcontrib.bibtex']
 
 napoleon_google_docstring = False
 napoleon_use_param = False
@@ -48,6 +49,19 @@ release = version
 
 # The name of default reST role, that is, for text marked up `like this`.
 default_role = 'math'
+
+doctest_default_flags = (doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE |
+                         doctest.IGNORE_EXCEPTION_DETAIL)
+doctest_global_setup = """
+from diofant import *
+a, b, c, d, x, y, z, t = symbols('a b c d x y z t')
+k, m, n = symbols('k m n', integer=True)
+f, g, h = symbols('f g h', cls=Function)
+init_printing()
+import sys
+sys.__displayhook__ = sys.displayhook
+del sys
+"""
 
 # The theme to use for HTML and HTML Help pages.
 html_theme = 'sphinx_rtd_theme'
