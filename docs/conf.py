@@ -9,6 +9,7 @@
 # removed automatically).
 #
 
+import re
 import warnings
 
 import diofant
@@ -41,6 +42,11 @@ project = 'Diofant'
 copyright = '2006-2018 SymPy Development Team, 2013-2019 Sergey B Kirpichev'
 version = diofant.__version__
 release = version
+
+m = re.match(r'^[0-9]+.[0-9]+.[0-9]+$', release)
+html_context = {'docversion': 'v' + m.group(0) if m else 'latest',
+                'versions': ['latest', 'v0.10.0', 'v0.9.0', 'v0.8.0']}
+html_show_sphinx = False
 
 # The name of default reST role, that is, for text marked up `like this`.
 default_role = 'math'
@@ -114,6 +120,7 @@ html_static_path = ['_static']
 # Should we show "Created using Sphinx" in the HTML footer?
 html_show_sphinx = False
 
+templates_path = ['_templates']
 
 # https://docs.readthedocs.io/en/latest/guides/adding-custom-css.html
 def setup(app):

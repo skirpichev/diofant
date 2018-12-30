@@ -1,0 +1,19 @@
+{% extends "!layout.html" %}
+{% block footer %}
+  {{ super() }}
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Read the Docs</span>
+        v: {{ docversion }}
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        <dt>Versions</dt>
+		{% for ver in versions %}
+          <dd><a href="{{ pathto('_static/..', 1) }}/../../en/{{ver}}/{{pagename}}.html">{{ver}}</a></dd>
+		{% endfor %}
+      </dl>
+    </div>
+  </div>
+{% endblock %}
