@@ -74,12 +74,19 @@ class Add(AssocOp):
                         o.is_finite is False):
                     # we know for sure the result will be nan
                     return [nan], [], None
-                if coeff.is_Number:
-                    coeff += o
+                if coeff.is_Number or coeff == -oo:
+                    coeff = o + coeff
                     if coeff is nan:
                         # we know for sure the result will be nan
                         return [nan], [], None
                 o  # XXX "peephole" optimization, http://bugs.python.org/issue2506
+                continue
+
+            elif o == -oo:
+                if coeff.is_Number:
+                    coeff += o
+                    if coeff is nan:
+                        return [nan], [], None
                 continue
 
             elif o is zoo:

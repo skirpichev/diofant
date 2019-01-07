@@ -1471,7 +1471,7 @@ def test_latex():
     assert latex(GoldenRatio) == r"\phi"
     assert latex(EulerGamma) == r"\gamma"
     assert latex(oo) == r"\infty"
-    assert latex(-oo) == r"-\infty"
+    assert latex(-oo) == r"- \infty"
     assert latex(zoo) == r"\tilde{\infty}"
     assert latex(nan) == r"\mathrm{NaN}"
     assert latex(I) == r"i"

@@ -1,6 +1,5 @@
 from ..core import (Dummy, Expr, Float, PoleError, Rational, S, Symbol, nan,
                     oo, sympify)
-from ..functions.elementary.trigonometric import cos, sin
 from .gruntz import limitinf
 from .order import Order
 
@@ -31,6 +30,8 @@ def limit(expr, z, z0, dir="+"):
 
 
 def heuristics(e, z, z0, dir):
+    from ..functions.elementary.trigonometric import cos, sin
+
     rv = None
 
     if abs(z0) is oo:

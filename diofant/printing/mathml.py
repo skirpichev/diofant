@@ -203,12 +203,6 @@ class MathMLPrinter(Printer):
     def _print_Infinity(self, e):
         return self.dom.createElement('infinity')
 
-    def _print_NegativeInfinity(self, e):
-        x = self.dom.createElement('apply')
-        x.appendChild(self.dom.createElement('minus'))
-        x.appendChild(self.dom.createElement('infinity'))
-        return x
-
     def _print_Integral(self, e):
         def lime_recur(limits):
             x = self.dom.createElement('apply')

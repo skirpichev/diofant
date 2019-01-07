@@ -32,8 +32,8 @@ from diofant.concrete.expr_with_limits import AddWithLimits, ExprWithLimits
 from diofant.core.function import Application, AppliedUndef
 from diofant.core.numbers import (Catalan, ComplexInfinity, EulerGamma, Exp1,
                                   GoldenRatio, Half, ImaginaryUnit, Infinity,
-                                  NaN, NegativeInfinity, NegativeOne,
-                                  NumberSymbol, One, Pi, Zero)
+                                  NaN, NegativeOne, NumberSymbol, One, Pi,
+                                  Zero)
 from diofant.core.trace import Tr
 from diofant.diffgeom import (BaseCovarDerivativeOp, BaseScalarField,
                               BaseVectorField, Commutator, CoordSystem,
@@ -430,10 +430,6 @@ def test_diofant__core__numbers__IntegerConstant():
 
 def test_diofant__core__numbers__NaN():
     assert _test_args(NaN())
-
-
-def test_diofant__core__numbers__NegativeInfinity():
-    assert _test_args(NegativeInfinity())
 
 
 def test_diofant__core__numbers__NegativeOne():

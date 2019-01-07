@@ -73,7 +73,6 @@ class PrettyPrinter(Printer):
 
     # Infinity inherits from Number, so we have to override _print_XXX order
     _print_Infinity = _print_Atom
-    _print_NegativeInfinity = _print_Atom
     _print_EmptySet = _print_Atom
     _print_Naturals = _print_Atom
     _print_Naturals0 = _print_Atom

@@ -64,8 +64,6 @@ from functools import reduce
 
 from ..core import Add, Dummy, E, Float, Mul, S, cacheit, evaluate, oo
 from ..core.compatibility import ordered
-from ..functions import Abs, exp, log
-from ..functions import sign as sgn
 
 
 def compare(a, b, x):
@@ -94,6 +92,8 @@ def compare(a, b, x):
     >>> compare(exp(x), x**5, x)
     1
     """
+    from ..functions import log
+
     # The log(exp(...)) must always be simplified here for termination.
     la = a.exp if a.is_Pow and a.base is E else log(a)
     lb = b.exp if b.is_Pow and b.base is E else log(b)
@@ -121,6 +121,8 @@ def mrv(e, x):
     >>> mrv(exp(x + exp(-x)), x)
     {E**(-x), E**(x + E**(-x))}
     """
+    from ..functions import log
+
     if not e.has(x):
         return set()
     elif e == x:
@@ -173,6 +175,8 @@ def sign(e, x):
         The result of this function is currently undefined if `e` changes
         sign arbitrarily often at infinity (e.g. `\sin(x)`).
     """
+    from ..functions import sign as sgn
+
     if not e.has(x):
         return sgn(e).simplify()
     elif e == x:
@@ -204,6 +208,8 @@ def limitinf(e, x):
     >>> limitinf(x/log(x**(log(x**(log(2)/log(x))))), x)
     oo
     """
+    from ..functions import Abs, sign as sgn
+
     assert x.is_real and x.is_positive
     assert not e.has(Float)
 
@@ -259,13 +265,15 @@ def mrv_leadterm(e, x):
     >>> mrv_leadterm(1/exp(-x + exp(-x)) - exp(x), x)
     (-1, 0)
     """
+    from ..functions import log
+
     if not e.has(x):
         return e, S.Zero
 
     e = e.replace(lambda f: f.is_Pow and f.exp.has(x),
-                  lambda f: exp(log(f.base)*f.exp))
+                  lambda f: E**(log(f.base)*f.exp))
     e = e.replace(lambda f: f.is_Mul and sum(a.is_Pow for a in f.args) > 1,
-                  lambda f: Mul(exp(Add(*[a.exp for a in f.args if a.is_Pow and a.base is E])),
+                  lambda f: Mul(E**(Add(*[a.exp for a in f.args if a.is_Pow and a.base is E])),
                                 *[a for a in f.args if not a.is_Pow or a.base is not E]))
 
     # The positive dummy, w, is used here so log(w*2) etc. will expand.
@@ -324,8 +332,8 @@ def rewrite(e, x, w):
     if x in Omega:
         # Moving up in the asymptotical scale:
         with evaluate(False):
-            e = e.xreplace({x: exp(x)})
-            Omega = {s.xreplace({x: exp(x)}) for s in Omega}
+            e = e.xreplace({x: E**x})
+            Omega = {s.xreplace({x: E**x}) for s in Omega}
 
     Omega = list(ordered(Omega, keys=lambda a: -len(mrv(a, x))))
 
@@ -340,7 +348,7 @@ def rewrite(e, x, w):
     # Rewrite and substitute subexpressions in the Omega.
     for a in Omega:
         c = limitinf(a.exp/g.exp, x)
-        b = exp(a.exp - c*g.exp)*w**c  # exponential must never be expanded here
+        b = E**(a.exp - c*g.exp)*w**c  # exponential must never be expanded here
         with evaluate(False):
             e = e.xreplace({a: b})
 

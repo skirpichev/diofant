@@ -286,9 +286,6 @@ class StrPrinter(Printer):
     def _print_NaN(self, expr):
         return 'nan'
 
-    def _print_NegativeInfinity(self, expr):
-        return '-oo'
-
     def _print_Order(self, expr):
         if all(p is S.Zero for p in expr.point) or not len(expr.variables):
             if len(expr.variables) <= 1:

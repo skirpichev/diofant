@@ -145,6 +145,7 @@ def test_ImaginaryUnit():
 def test_Infinity():
     assert str(oo) == "oo"
     assert str(oo*I) == "oo*I"
+    assert str(-oo) == "-oo"
 
 
 def test_Integer():
@@ -234,10 +235,6 @@ def test_Mul():
 
 def test_NaN():
     assert str(nan) == "nan"
-
-
-def test_NegativeInfinity():
-    assert str(-oo) == "-oo"
 
 
 def test_Order():

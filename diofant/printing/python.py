@@ -5,8 +5,7 @@ from .str import StrPrinter
 
 
 # A list of classes that should be printed using StrPrinter
-STRPRINT = ("Add", "Infinity", "Integer", "Mul", "NegativeInfinity",
-            "Pow", "Zero")
+STRPRINT = "Add", "Infinity", "Integer", "Mul", "Pow", "Zero"
 
 
 class PythonPrinter(ReprPrinter, StrPrinter):

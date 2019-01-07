@@ -2276,7 +2276,7 @@ class Expr(Basic, EvalfMixin, metaclass=ManagedProperties):
         if i._prec > 1 or i._prec == -1:
             if i:
                 return False
-            elif not i and (n._prec > 1 or n._prec == -1):
+            elif not i and (n._prec > 1 or n._prec == -1 or n == -oo.evalf()):
                 return True
 
     ###################################################################################
