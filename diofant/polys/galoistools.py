@@ -112,7 +112,8 @@ def gf_from_dict(f, p, K):
     f = dmp_from_dict(f, 0, K.finite_field(p))
     f = dmp_normal(f, 0, K.finite_field(p))
 
-    return dmp_convert(f, 0, K.finite_field(p), K)
+    f = dmp_convert(f, 0, K.finite_field(p), K)
+    return gf_from_int_poly(f, p)
 
 
 def gf_from_int_poly(f, p):
@@ -127,6 +128,21 @@ def gf_from_int_poly(f, p):
 
     """
     return dmp_strip([a % p for a in f], 0)
+
+
+def gf_to_int_poly(f, p):
+    """
+    Convert a ``GF(p)[x]`` polynomial to ``Z[x]``.
+
+    Examples
+    ========
+
+    >>> gf_to_int_poly([2, 3, 3], 5)
+    [2, -2, -2]
+
+    """
+    from ..ntheory.modular import symmetric_residue
+    return [symmetric_residue(c, p) for c in f]
 
 
 def gf_neg(f, p, K):

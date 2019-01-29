@@ -22,7 +22,8 @@ from .densetools import (dmp_clear_denoms, dmp_compose, dmp_diff_eval_in,
                          dmp_ground_trunc, dup_mirror)
 from .euclidtools import dmp_inner_gcd, dmp_primitive
 from .galoistools import (gf_add_mul, gf_div, gf_factor, gf_factor_sqf,
-                          gf_from_int_poly, gf_gcdex, gf_mul, gf_rem)
+                          gf_from_int_poly, gf_gcdex, gf_mul, gf_rem,
+                          gf_to_int_poly)
 from .polyconfig import query
 from .polyerrors import (CoercionFailed, DomainError, EvaluationFailed,
                          ExtraneousFactors)
@@ -162,6 +163,11 @@ def dup_zz_hensel_lift(p, f, f_list, l, K):
 
     s, t, _ = gf_gcdex(g, h, p, K)
 
+    g = gf_to_int_poly(g, p)
+    h = gf_to_int_poly(h, p)
+    s = gf_to_int_poly(s, p)
+    t = gf_to_int_poly(t, p)
+
     for _ in range(1, d + 1):
         (g, h, s, t), m = dup_zz_hensel_step(m, f, g, h, s, t, K), m**2
 
@@ -213,7 +219,7 @@ def dup_zz_zassenhaus(f, K):
 
     l = int(math.ceil(math.log(2*B + 1, p)))
 
-    modular = fsqf
+    modular = [gf_to_int_poly(ff, p) for ff in fsqf]
 
     g = dup_zz_hensel_lift(p, f, modular, l, K)
 
@@ -644,6 +650,9 @@ def dup_zz_diophantine(F, m, p, K):
 
         t = gf_add_mul(t, q, g, p, K)
 
+        s = gf_to_int_poly(s, p)
+        t = gf_to_int_poly(t, p)
+
         result = [s, t]
     else:
         G = [F[-1]]
@@ -664,7 +673,8 @@ def dup_zz_diophantine(F, m, p, K):
             s = gf_from_int_poly(s, p)
             f = gf_from_int_poly(f, p)
 
-            s = gf_rem(dup_lshift(s, m, K), f, p, K)
+            r = gf_rem(dup_lshift(s, m, K), f, p, K)
+            s = gf_to_int_poly(r, p)
 
             result.append(s)
 

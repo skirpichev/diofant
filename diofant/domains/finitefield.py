@@ -5,6 +5,7 @@ import random
 
 from ..core import Dummy, integer_digits
 from ..ntheory import isprime, perfect_power
+from ..ntheory.modular import symmetric_residue
 from ..polys.galoistools import gf_irreducible
 from ..polys.polyerrors import CoercionFailed
 from .domainelement import DomainElement
@@ -176,7 +177,7 @@ class ModularInteger(DomainElement):
         return hash((self.rep, self.mod))
 
     def __int__(self):
-        return int(self.rep)
+        return int(symmetric_residue(self.rep, self.mod))
 
     def __pos__(self):
         return self

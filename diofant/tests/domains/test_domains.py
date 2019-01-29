@@ -1040,7 +1040,7 @@ def test_ModularInteger():
     assert int(F9.zero) == 0
     assert int(F9.one) == 1
     assert int(F9([1, 1])) == int(F9(4)) == 4
-    assert int(F9([2, 0])) == int(F9(6)) == 6
+    assert int(F9([2, 0])) == int(F9(6)) == -3
 
     F81 = FF(3, [1, 0, 0, 1, 2])
 

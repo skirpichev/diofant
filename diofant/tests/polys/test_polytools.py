@@ -145,12 +145,12 @@ def test_Poly_from_poly():
     K = FF(2)
 
     assert Poly.from_poly(g) == g
-    assert Poly.from_poly(g, domain=ZZ).rep == DMP([1, 2], ZZ)
+    assert Poly.from_poly(g, domain=ZZ).rep == DMP([1, -1], ZZ)
     pytest.raises(CoercionFailed, lambda: Poly.from_poly(g, domain=QQ))
     assert Poly.from_poly(g, domain=K).rep == DMP([K(1), K(0)], K)
 
     assert Poly.from_poly(g, gens=x) == g
-    assert Poly.from_poly(g, gens=x, domain=ZZ).rep == DMP([1, 2], ZZ)
+    assert Poly.from_poly(g, gens=x, domain=ZZ).rep == DMP([1, -1], ZZ)
     pytest.raises(CoercionFailed, lambda: Poly.from_poly(g, gens=x, domain=QQ))
     assert Poly.from_poly(g, gens=x, domain=K).rep == DMP([K(1), K(0)], K)
 
@@ -1890,8 +1890,8 @@ def test_gcd():
     assert lcm(8, 6) == 24
 
     f, g = x**2 + 8*x + 7, x**3 + 7*x**2 + x + 7
-    l = x**4 + 8*x**3 + 8*x**2 + 8*x + 7
-    h, s, t = x + 7, x + 1, x**2 + 1
+    l = x**4 - 3*x**3 - 3*x**2 - 3*x - 4
+    h, s, t = x - 4, x + 1, x**2 + 1
 
     assert cofactors(f, g, modulus=11) == (h, s, t)
     assert gcd(f, g, modulus=11) == h
@@ -2002,7 +2002,7 @@ def test_monic():
     pytest.raises(ExactQuotientFailed, lambda: monic(2*x + 6*x + 1, auto=False))
 
     assert monic(2.0*x**2 + 6.0*x + 4.0) == 1.0*x**2 + 3.0*x + 2.0
-    assert monic(2*x**2 + 3*x + 4, modulus=5) == x**2 + 4*x + 2
+    assert monic(2*x**2 + 3*x + 4, modulus=5) == x**2 - x + 2
 
 
 def test_content():
@@ -2294,8 +2294,7 @@ def test_factor():
     assert factor(6*x - 10) == Mul(2, 3*x - 5, evaluate=False)
 
     assert factor(x**11 + x + 1, modulus=65537) == \
-        (x**2 + x + 1)*(x**9 + 65536*x**8 + x**6 + 65536*x**5 +
-                        x**3 + 65536*x**2 + 1)
+        (x**2 + x + 1)*(x**9 - x**8 + x**6 - x**5 + x**3 - x**2 + 1)
 
     f = x/pi + x*sin(x)/pi
     g = y/(pi**2 + 2*pi + 1) + y*sin(x)/(pi**2 + 2*pi + 1)
