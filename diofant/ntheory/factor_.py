@@ -2,6 +2,7 @@
 Integer factorization
 """
 
+import collections
 import math
 import random
 
@@ -856,7 +857,7 @@ def factorint(n, limit=None, use_trial=True, use_rho=True, use_pm1=True,
     >>> visual = factorint(1764, visual=True); pprint(visual, use_unicode=False)
      2  2  2
     2 *3 *7
-    >>> print(factorint(visual))
+    >>> pprint(factorint(visual))
     {2: 2, 3: 2, 7: 2}
 
     If you want to send a number to be factored in a partially factored form
@@ -916,16 +917,16 @@ def factorint(n, limit=None, use_trial=True, use_rho=True, use_pm1=True,
     smoothness, smoothness_p, divisors
 
     """
-    factordict = {}
+    factordict = collections.Counter()
     if visual and not isinstance(n, Mul) and not isinstance(n, dict):
         factordict = factorint(n, limit=limit, use_trial=use_trial,
                                use_rho=use_rho, use_pm1=use_pm1,
                                verbose=verbose, visual=False)
     elif isinstance(n, Mul):
-        factordict = {int(k): int(v) for k, v in
-                      list(n.as_powers_dict().items())}
+        factordict = collections.Counter({int(k): int(v) for k, v in
+                                          list(n.as_powers_dict().items())})
     elif isinstance(n, dict):
-        factordict = n
+        factordict = collections.Counter(n)
     if factordict and (isinstance(n, Mul) or isinstance(n, dict)):
         # check it
         for k in list(factordict):
@@ -939,7 +940,7 @@ def factorint(n, limit=None, use_trial=True, use_rho=True, use_pm1=True,
                     factordict[k] += v*e
                 else:
                     factordict[k] = v*e
-    if visual or (type(n) is dict and
+    if visual or (isinstance(n, collections.Mapping) and
                   visual is not True and
                   visual is not False):
         if factordict == {}:
@@ -979,7 +980,7 @@ def factorint(n, limit=None, use_trial=True, use_rho=True, use_pm1=True,
         return [{0: 1}, {}, {2: 1}, {3: 1}, {2: 2}, {5: 1},
                 {2: 1, 3: 1}, {7: 1}, {2: 3}, {3: 2}][n]
 
-    factors = {}
+    factors = collections.Counter()
 
     # do simplistic factorization
     if verbose:

@@ -1,4 +1,5 @@
 import builtins
+import collections
 import os
 import sys
 
@@ -35,7 +36,7 @@ def _init_ipython_printing(ip, stringify_func):
     def _print_latex_text(o):
         return latex(o, mode='equation')
 
-    printable_types = [float, tuple, list, set, frozenset, dict, int]
+    printable_types = [float, tuple, list, set, frozenset, dict, int, collections.Counter]
 
     plaintext_formatter = ip.display_formatter.formatters['text/plain']
     latex_formatter = ip.display_formatter.formatters['text/latex']
