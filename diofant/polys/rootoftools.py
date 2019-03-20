@@ -4,11 +4,12 @@ from mpmath import findroot, mpc, mpf, workprec
 from mpmath.libmp.libmpf import prec_to_dps
 
 from ..core import (Add, Dummy, Expr, Float, I, Integer, Lambda, Rational, S,
-                    cacheit, symbols, sympify)
+                    cacheit, oo, symbols, sympify)
 from ..core.compatibility import ordered
 from ..core.evaluate import global_evaluate
 from ..core.function import AppliedUndef
 from ..domains import QQ
+from ..functions import im, re
 from ..functions import root as _root
 from ..functions import sign
 from ..utilities import lambdify, sift
@@ -247,7 +248,34 @@ class RootOf(Expr):
     def _get_complexes_sqf(cls, factor):
         """Compute complex root isolating intervals for a square-free polynomial."""
         if factor not in _complexes_cache:
-            complexes = dup_isolate_complex_roots_sqf(factor.rep.to_dense(), factor.domain, blackbox=True)
+            rfactor = factor.rep.to_dense()
+            nreals = factor.count_roots()
+            ncomplexes = [_ for _ in factor.nroots() if _.is_real is False]
+            nsucc = True
+            if factor.degree() - nreals != len(ncomplexes):
+                nsucc = False
+            if nsucc:
+                d = oo
+                for a in ncomplexes:
+                    for b in ncomplexes:
+                        if a != b:
+                            td = abs(a - b)
+                            if d > td:
+                                d = td
+                de = d*1e-6
+                newb = [((QQ.from_expr(re(_) - de), QQ.from_expr(im(_) - de)),
+                         (QQ.from_expr(re(_) + de), QQ.from_expr(im(_) + de))) for _ in ncomplexes]
+                complexes = []
+                for n in newb:
+                    complexes.extend(dup_isolate_complex_roots_sqf(rfactor, factor.domain,
+                                                                   inf=n[0], sup=n[1],
+                                                                   blackbox=True))
+                if len(complexes) != len(ncomplexes):
+                    nsucc = False
+
+            if not nsucc:
+                complexes = dup_isolate_complex_roots_sqf(rfactor, factor.domain, blackbox=True)
+
             if not complexes:
                 _complexes_cache[factor] = []
             return complexes
