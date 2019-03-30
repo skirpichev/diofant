@@ -2,6 +2,7 @@
 
 import math
 
+from ..core import cacheit
 from ..ntheory import factorint, isprime, nextprime
 from ..ntheory.modular import symmetric_residue
 from ..utilities import subsets
@@ -14,8 +15,8 @@ from .densebasic import (dmp_convert, dmp_degree_in, dmp_degree_list,
                          dmp_eject, dmp_exclude, dmp_from_dict, dmp_ground_LC,
                          dmp_ground_p, dmp_include, dmp_inject, dmp_LC,
                          dmp_nest, dmp_normal, dmp_one, dmp_raise, dmp_strip,
-                         dmp_swap, dmp_TC, dmp_terms_gcd, dmp_zero_p,
-                         dup_inflate)
+                         dmp_swap, dmp_TC, dmp_terms_gcd, dmp_to_tuple,
+                         dmp_zero_p, dup_inflate)
 from .densetools import (dmp_clear_denoms, dmp_compose, dmp_diff_eval_in,
                          dmp_eval_in, dmp_eval_tail, dmp_ground_content,
                          dmp_ground_monic, dmp_ground_primitive,
@@ -1044,6 +1045,12 @@ def dmp_gf_factor(f, u, K):
 
 def dmp_factor_list(f, u, K0):
     """Factor polynomials into irreducibles in `K[X]`."""
+    f = dmp_to_tuple(f, u)
+    return _dmp_factor_list(f, u, K0)
+
+
+@cacheit
+def _dmp_factor_list(f, u, K0):
     J, f = dmp_terms_gcd(f, u, K0)
     cont, f = dmp_ground_primitive(f, u, K0)
 
