@@ -1996,10 +1996,15 @@ class PolyElement(DomainElement, CantSympify, dict):
         a = ring.domain.convert(a)
 
         if ring.is_univariate:
-            result = ring.domain.zero
+            (monom,), result = f.LT
 
-            for (n,), coeff in f.items():
-                result += coeff*a**n
+            for (n,), coeff in f.terms()[1:]:
+                result *= a**(monom - n)
+                result += coeff
+                monom = n
+
+            if monom:
+                result *= a**monom
 
             return result
         else:
