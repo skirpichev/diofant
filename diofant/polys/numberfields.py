@@ -627,8 +627,11 @@ def minpoly_groebner(ex, x, domain):
                     bmp = PurePoly(minpoly_groebner(1/base, x, domain=domain), x)
                     base, exp = update_mapping(1/base, bmp), -exp
                 return update_mapping(ex, exp.denominator, -base**exp.numerator)
-        elif isinstance(ex, RootOf) and ex.poly.domain.is_IntegerRing:
-            return update_mapping(ex, ex.poly)
+        elif isinstance(ex, RootOf):
+            if ex.poly.domain.is_IntegerRing:
+                return update_mapping(ex, ex.poly)
+            elif ex.poly.domain.is_AlgebraicField:
+                return update_mapping(ex, ex.poly.sqf_norm()[-1])
         elif isinstance(ex, conjugate):
             return update_mapping(ex, minimal_polynomial(ex.args[0], domain=domain,
                                                          method='groebner'))
