@@ -427,7 +427,7 @@ def _minpoly_rootof(ex, x):
     domain = ex.poly.domain
     if domain.is_IntegerRing:
         return ex.poly(x)
-    elif domain.is_AlgebraicField:
+    else:
         return ex.poly.sqf_norm()[-1](x)
 
 
@@ -497,7 +497,7 @@ def _minpoly_compose(ex, x, dom):
         res = _minpoly_sin(ex, x)
     elif isinstance(ex, cos):
         res = _minpoly_cos(ex, x)
-    elif isinstance(ex, RootOf):
+    elif isinstance(ex, RootOf) and ex.poly.domain.is_Numerical:
         res = _minpoly_rootof(ex, x)
     elif isinstance(ex, conjugate):
         res = _minpoly_compose(ex.args[0], x, dom)
@@ -630,10 +630,10 @@ def minpoly_groebner(ex, x, domain):
                     bmp = PurePoly(minpoly_groebner(1/base, x, domain=domain), x)
                     base, exp = update_mapping(1/base, bmp), -exp
                 return update_mapping(ex, exp.denominator, -base**exp.numerator)
-        elif isinstance(ex, RootOf):
+        elif isinstance(ex, RootOf) and ex.poly.domain.is_Numerical:
             if ex.poly.domain.is_IntegerRing:
                 return update_mapping(ex, ex.poly)
-            elif ex.poly.domain.is_AlgebraicField:
+            else:
                 return update_mapping(ex, ex.poly.sqf_norm()[-1])
         elif isinstance(ex, conjugate):
             return update_mapping(ex, minimal_polynomial(ex.args[0], domain=domain,
