@@ -424,10 +424,11 @@ def _minpoly_exp(ex, x):
 
 def _minpoly_rootof(ex, x):
     """Returns the minimal polynomial of a ``RootOf`` object."""
-    p = ex.expr
-    p = p.subs({ex.poly.gens[0]: x})
-    _, factors = factor_list(p, x)
-    return _choose_factor(factors, x, ex)
+    domain = ex.poly.domain
+    if domain.is_IntegerRing:
+        return ex.poly(x)
+    elif domain.is_AlgebraicField:
+        return ex.poly.sqf_norm()[-1](x)
 
 
 def _minpoly_compose(ex, x, dom):
