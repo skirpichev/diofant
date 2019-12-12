@@ -753,7 +753,7 @@ def _solve(f, symbol, **flags):
             # polys (e.g. for symbols other than the one we are interested
             # in) so recast the poly in terms of our generator of interest.
 
-            poly = Poly(f_num, gens[0], extension=False)
+            poly = Poly(f_num, gens[0]).sqf_part()
 
             # if we aren't on the tsolve-pass, use roots
             if not flags.pop('tsolve', False):
