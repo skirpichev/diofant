@@ -200,7 +200,7 @@ class MpmathPrinter(LambdaPrinter):
             return super()._print_Pow(expr)
 
     def _print_Rational(self, expr):
-        n, d = expr.as_numer_denom()
+        n, d = expr.numerator, expr.denominator
         if d == 1:
             return "%s" % n
         else:
