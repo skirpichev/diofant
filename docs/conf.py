@@ -44,7 +44,7 @@ master_doc = 'index'
 
 # Project information.
 project = 'Diofant'
-copyright = '2006-2018 SymPy Development Team, 2013-2019 Sergey B Kirpichev'
+copyright = '2006-2018 SymPy Development Team, 2013-2020 Sergey B Kirpichev'
 version = diofant.__version__
 release = version
 
@@ -162,7 +162,7 @@ mathjax_config = {
 
 
 def linkcode_resolve(domain, info):
-    """Determine the URL corresponding to Python object. """
+    """Determine the URL corresponding to Python object."""
     if domain != 'py':
         return
 
