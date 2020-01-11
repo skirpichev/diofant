@@ -165,9 +165,11 @@ Solve the differential equation `f'' - f = e^x`.
 
    >>> f = symbols('f', cls=Function)
    >>> dsolve(Eq(f(x).diff(x, 2) - f(x), exp(x)))
-           x ⎛     x⎞    -x
-   f(x) = ℯ ⋅⎜C₂ + ─⎟ + ℯ  ⋅C₁
-             ⎝     2⎠
+   ⎡⎧                x           ⎫⎤
+   ⎢⎪        x      ℯ ⋅x    -x   ⎪⎥
+   ⎢⎨f: x ↦ ℯ ⋅C₂ + ──── + ℯ  ⋅C₁⎬⎥
+   ⎢⎪                2           ⎪⎥
+   ⎣⎩                            ⎭⎦
 
 Find the eigenvalues of `\left[\begin{smallmatrix}1 & 2\\2 &
 2\end{smallmatrix}\right]`.

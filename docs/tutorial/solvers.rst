@@ -72,9 +72,9 @@ To solve the differential equation `f''(x) - 2f'(x) + f(x) =
 \sin(x)`, we would thus use
 
     >>> dsolve(Eq(f(x).diff(x, x) - 2*f(x).diff(x) + f(x), sin(x)))
-            x               cos(x)
-    f(x) = ℯ ⋅(C₁ + C₂⋅x) + ──────
-                              2
+    ⎡⎧        x       x        cos(x)⎫⎤
+    ⎢⎨f: x ↦ ℯ ⋅C₁ + ℯ ⋅C₂⋅x + ──────⎬⎥
+    ⎣⎩                           2   ⎭⎦
 
 The arbitrary constants in the solutions from dsolve are symbols of
 the form ``C1``, ``C2``, ``C3``, and so on.
@@ -83,5 +83,6 @@ the form ``C1``, ``C2``, ``C3``, and so on.
 equations, like :func:`~diofant.solvers.solvers.solve`.
 
     >>> dsolve([f(x).diff(x) - g(x), g(x).diff(x) - f(x)])
-    ⎡        x       -x             x       -x   ⎤
-    ⎣f(x) = ℯ ⋅C₂ - ℯ  ⋅C₁, g(x) = ℯ ⋅C₂ + ℯ  ⋅C₁⎦
+    ⎡⎧        x       -x             x       -x   ⎫⎤
+    ⎢⎨f: x ↦ ℯ ⋅C₂ - ℯ  ⋅C₁, g: x ↦ ℯ ⋅C₂ + ℯ  ⋅C₁⎬⎥
+    ⎣⎩                                            ⎭⎦

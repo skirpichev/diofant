@@ -230,9 +230,9 @@ from collections import defaultdict
 from itertools import islice
 
 from ..core import (Add, AtomicExpr, Derivative, Dummy, E, Eq, Equality, Expr,
-                    Function, I, Integer, Mul, Number, Pow, Subs, Symbol,
-                    Tuple, Wild, diff, expand, expand_mul, factor_terms, nan,
-                    oo, symbols, sympify, zoo)
+                    Function, I, Integer, Lambda, Mul, Number, Pow, Subs,
+                    Symbol, Tuple, Wild, diff, expand, expand_mul,
+                    factor_terms, nan, oo, symbols, sympify, zoo)
 from ..core.compatibility import is_sequence, iterable, ordered
 from ..core.function import AppliedUndef, _mexpand
 from ..core.multidimensional import vectorize
@@ -532,10 +532,11 @@ def dsolve(eq, func=None, hint="default", simplify=True,
     ========
 
     >>> dsolve(Derivative(f(x), x, x) + 9*f(x), f(x))
-    Eq(f(x), C1*sin(3*x) + C2*cos(3*x))
+    [{f: Lambda(x, C1*sin(3*x) + C2*cos(3*x))}]
 
     >>> eq = sin(x)*cos(f(x)) + cos(x)*sin(f(x))*f(x).diff(x)
     >>> dsolve(eq, hint='1st_exact')
+
     [Eq(f(x), -acos(C1/cos(x)) + 2*pi), Eq(f(x), acos(C1/cos(x)))]
     >>> dsolve(eq, hint='almost_linear')
     [Eq(f(x), -acos(C1/sqrt(-cos(x)**2)) + 2*pi), Eq(f(x), acos(C1/sqrt(-cos(x)**2)))]
@@ -581,8 +582,9 @@ def dsolve(eq, func=None, hint="default", simplify=True,
             if init:
                 constants = Tuple(*sols).free_symbols - Tuple(*eq).free_symbols
                 solved_constants = solve_init(sols, func, constants, init)
-                return [sol.subs(solved_constants) for sol in sols]
-            return sols
+                sols = [sol.subs(solved_constants) for sol in sols]
+            return [{k.func: Lambda((t,), v) for k, v in _.items()}
+                    for _ in solve(sols, func)]
     else:
         given_hint = hint  # hint given by the user
 
@@ -617,7 +619,11 @@ def dsolve(eq, func=None, hint="default", simplify=True,
         else:
             # The key 'hint' stores the hint needed to be solved for.
             hint = hints['hint']
-            return _helper_simplify(eq, hint, hints, simplify, init=init)
+            func = hints['func']
+            t = func.args[0]
+            sols = _helper_simplify(eq, hint, hints, simplify, init=init)
+            return [{k.func: Lambda((t,), v) for k, v in _.items()}
+                    for _ in solve(sols, func)]
 
 
 def _helper_simplify(eq, hint, match, simplify=True, init=None, **kwargs):
@@ -1965,21 +1971,23 @@ def odesimp(eq, func, order, constants, hint):
     ... hint='1st_homogeneous_coeff_subs_indep_div_dep_Integral',
     ... simplify=False)
     >>> pprint(eq, wrap_line=False, use_unicode=False)
-                            x
-                           ----
-                           f(x)
-                             /
-                            |
-                            |   /        1   \
-                            |  -|u2 + -------|
-                            |   |        /1 \|
-                            |   |     sin|--||
-                            |   \        \u2//
-    log(f(x)) = log(C1) +   |  ---------------- d(u2)
-                            |          2
-                            |        u2
-                            |
-                           /
+                 x
+                ----
+                f(x)
+                  /
+                 |
+                 |   /        1   \
+                 |  -|u2 + -------|
+                 |   |        /1 \|
+                 |   |     sin|--||
+                 |   \        \u2//
+                 |  ---------------- d(u2)
+                 |          2
+                 |        u2
+                 |
+                /
+    <BLANKLINE>
+    [{f: x -> E                           *C1}]
 
     >>> pprint(odesimp(eq, f(x), 1, {C1},
     ...                hint='1st_homogeneous_coeff_subs_indep_div_dep'),
@@ -2841,13 +2849,41 @@ def ode_1st_homogeneous_coeff_best(eq, func, order, match):
     >>> pprint(dsolve(2*x*f(x) + (x**2 + f(x)**2)*f(x).diff(x), f(x),
     ...               hint='1st_homogeneous_coeff_best', simplify=False),
     ...        use_unicode=False)
-                             /    2    \
-                             | 3*x     |
-                          log|----- + 1|
-                             | 2       |
-                             \f (x)    /
-    log(f(x)) = log(C1) - --------------
-                                3
+                    /                                    2/3\
+                    |           /           ____________\   |
+                    |     3 ___ |    3     /   6      6 |   |                  /
+              3 ___ | 2   \/ 2 *\- C1  + \/  C1  + 4*x  /   |                  |
+              \/ 2 *|x  - ----------------------------------|            3 ___ |
+                    \                     2                 /            \/ 2 *\-
+    [{f: x -> -----------------------------------------------}, {f: x -> ---------
+                           _________________________
+                          /            ____________
+                       3 /      3     /   6      6
+                       \/   - C1  + \/  C1  + 4*x
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+                                                         2/3\                  /
+                              2 /           ____________\   |                  |
+       2   3 ___ /      ___  \  |    3     /   6      6 |   |            3 ___ |
+    8*x  + \/ 2 *\1 - \/ 3 *I/ *\- C1  + \/  C1  + 4*x  /   /            \/ 2 *\-
+    ---------------------------------------------------------}, {f: x -> ---------
+                         _________________________
+                        /            ____________
+       /      ___  \ 3 /      3     /   6      6
+     4*\1 - \/ 3 *I/*\/   - C1  + \/  C1  + 4*x
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+                                                         2/3\
+                              2 /           ____________\   |
+       2   3 ___ /      ___  \  |    3     /   6      6 |   |
+    8*x  + \/ 2 *\1 + \/ 3 *I/ *\- C1  + \/  C1  + 4*x  /   /
+    ---------------------------------------------------------}]
+                         _________________________
+                        /            ____________
+       /      ___  \ 3 /      3     /   6      6
+     4*\1 + \/ 3 *I/*\/   - C1  + \/  C1  + 4*x
 
     References
     ==========
@@ -2998,18 +3034,18 @@ def ode_1st_homogeneous_coeff_subs_indep_div_dep(eq, func, order, match):
     >>> pprint(dsolve(genform, f(x),
     ...               hint='1st_homogeneous_coeff_subs_indep_div_dep_Integral'),
     ...        use_unicode=False)
-              x
-             ----
-             f(x)
-               /
-              |
-              |      -g(u2)
-              |  ---------------- d(u2)
-              |  u2*g(u2) + h(u2)
-              |
-             /
+                 x
+                ----
+                f(x)
+                  /
+                 |
+                 |      -g(u2)
+                 |  ---------------- d(u2)
+                 |  u2*g(u2) + h(u2)
+                 |
+                /
     <BLANKLINE>
-    f(x) = E                           *C1
+    [{f: x -> E                           *C1}]
 
     Where `u_2 g(u_2) + h(u_2) \ne 0` and `f(x) \ne 0`.
 
@@ -3025,13 +3061,41 @@ def ode_1st_homogeneous_coeff_subs_indep_div_dep(eq, func, order, match):
     >>> pprint(dsolve(2*x*f(x) + (x**2 + f(x)**2)*f(x).diff(x), f(x),
     ...               hint='1st_homogeneous_coeff_subs_indep_div_dep',
     ...               simplify=False), use_unicode=False)
-                             /    2    \
-                             | 3*x     |
-                          log|----- + 1|
-                             | 2       |
-                             \f (x)    /
-    log(f(x)) = log(C1) - --------------
-                                3
+                    /                                    2/3\
+                    |           /           ____________\   |
+                    |     3 ___ |    3     /   6      6 |   |                  /
+              3 ___ | 2   \/ 2 *\- C1  + \/  C1  + 4*x  /   |                  |
+              \/ 2 *|x  - ----------------------------------|            3 ___ |
+                    \                     2                 /            \/ 2 *\-
+    [{f: x -> -----------------------------------------------}, {f: x -> ---------
+                           _________________________
+                          /            ____________
+                       3 /      3     /   6      6
+                       \/   - C1  + \/  C1  + 4*x
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+                                                         2/3\                  /
+                              2 /           ____________\   |                  |
+       2   3 ___ /      ___  \  |    3     /   6      6 |   |            3 ___ |
+    8*x  + \/ 2 *\1 - \/ 3 *I/ *\- C1  + \/  C1  + 4*x  /   /            \/ 2 *\-
+    ---------------------------------------------------------}, {f: x -> ---------
+                         _________________________
+                        /            ____________
+       /      ___  \ 3 /      3     /   6      6
+     4*\1 - \/ 3 *I/*\/   - C1  + \/  C1  + 4*x
+    <BLANKLINE>
+    <BLANKLINE>
+    <BLANKLINE>
+                                                         2/3\
+                              2 /           ____________\   |
+       2   3 ___ /      ___  \  |    3     /   6      6 |   |
+    8*x  + \/ 2 *\1 + \/ 3 *I/ *\- C1  + \/  C1  + 4*x  /   /
+    ---------------------------------------------------------}]
+                         _________________________
+                        /            ____________
+       /      ___  \ 3 /      3     /   6      6
+     4*\1 + \/ 3 *I/*\/   - C1  + \/  C1  + 4*x
 
     References
     ==========
@@ -3162,23 +3226,24 @@ def ode_1st_linear(eq, func, order, match):
         P(x)*f(x) + --(f(x)) = Q(x)
                     dx
         >>> pprint(dsolve(genform, f(x), hint='1st_linear_Integral'), use_unicode=False)
-                            /       /                   \
-                            |      |                    |
-                   /        |      |    /               |
-                  |         |      |   |                |
-                - | P(x) dx |      |   | P(x) dx        |
-                  |         |      |   |                |
-                 /          |      |  /                 |
-        f(x) = E           *|C1 +  | E          *Q(x) dx|
-                            |      |                    |
-                            \     /                     /
+                               /       /                   \
+                               |      |                    |
+                      /        |      |    /               |
+                     |         |      |   |                |
+                   - | P(x) dx |      |   | P(x) dx        |
+                     |         |      |   |                |
+                    /          |      |  /                 |
+        [{f: x -> E           *|C1 +  | E          *Q(x) dx|}]
+                               |      |                    |
+                               \     /                     /
+
 
     Examples
     ========
 
     >>> pprint(dsolve(Eq(x*diff(f(x), x) - f(x), x**2*sin(x)),
     ...               f(x), '1st_linear'), use_unicode=False)
-    f(x) = x*(C1 - cos(x))
+    [{f: x -> x*(C1 - cos(x))}]
 
     References
     ==========
@@ -3217,19 +3282,19 @@ def ode_Bernoulli(eq, func, order, match):
                     dx
         >>> pprint(dsolve(genform, f(x), hint='Bernoulli_Integral'),
         ...        use_unicode=False, wrap_line=False)
-                                                                                        1
-                                                                                      ------
-                                                                                      -n + 1
-               /                      /               /                             \\
-               |                      |              |                              ||
-               |             /        |              |              /               ||
-               |            |         |              |             |                ||
-               | -(-n + 1)* | P(x) dx |              |   (-n + 1)* | P(x) dx        ||
-               |            |         |              |             |                ||
-               |           /          |              |            /                 ||
-        f(x) = |E                    *|C1 + (n - 1)* | -E                   *Q(x) dx||
-               |                      |              |                              ||
-               \                      \             /                               //
+                                                                                                                     -1
+                                                                                                                    -----
+                                                                                                                    n - 1
+                  /                    /         /                                  /                             \\
+                  |                    |        |                                  |                              ||
+                  |           /        |        |              /                   |              /               ||
+                  |          |         |        |             |                    |             |                ||
+                  | (n - 1)* | P(x) dx |        |   (-n + 1)* | P(x) dx            |   (-n + 1)* | P(x) dx        ||
+                  |          |         |        |             |                    |             |                ||
+                  |         /          |        |            /                     |            /                 ||
+        [{f: x -> |E                  *|C1 + n* | -E                   *Q(x) dx -  | -E                   *Q(x) dx||     }]
+                  |                    |        |                                  |                              ||
+                  \                    \       /                                  /                               //
 
     Note that the equation is separable when `n = 1` (see the docstring of
     :py:meth:`~diofant.solvers.ode.ode_separable`).
@@ -3289,13 +3354,13 @@ def ode_Riccati_special_minus2(eq, func, order, match):
     >>> genform = a*f(x).diff(x) - (b*f(x)**2 + c*f(x)/x + d/x**2)
     >>> sol = dsolve(genform, f(x))
     >>> pprint(sol, wrap_line=False, use_unicode=False)
-            /                                 /        __________________       \\
-            |           __________________    |       /                2        ||
-            |          /                2     |     \/  4*b*d - (a + c)  *log(x)||
-           -|a + c - \/  4*b*d - (a + c)  *tan|C1 + ----------------------------||
-            \                                 \                 2*a             //
-    f(x) = ------------------------------------------------------------------------
-                                            2*b*x
+               /                                          /        ___________________________       \\
+               |           ___________________________    |       /    2                    2        ||
+               |          /    2                    2     |     \/  - a  - 2*a*c + 4*b*d - c  *log(x)||
+              -|a + c - \/  - a  - 2*a*c + 4*b*d - c  *tan|C1 + -------------------------------------||
+               \                                          \                      2*a                 //
+    [{f: x -> ------------------------------------------------------------------------------------------}]
+                                                        2*b*x
 
     References
     ==========
@@ -3399,10 +3464,10 @@ def ode_2nd_power_series_ordinary(eq, func, order, match):
 
     >>> eq = f(x).diff(x, 2) + f(x)
     >>> pprint(dsolve(eq, hint='2nd_power_series_ordinary'), use_unicode=False)
-              / 4    2    \        /   2    \
-              |x    x     |        |  x     |    / 6\
-    f(x) = C2*|-- - -- + 1| + C1*x*|- -- + 1| + O\x /
-              \24   2     /        \  6     /
+                       2       4              3
+                   C2*x    C2*x           C1*x     / 6\
+    [{f: x -> C2 - ----- + ----- + C1*x - ----- + O\x /}]
+                     2       24             6
 
     References
     ==========
@@ -3555,13 +3620,10 @@ def ode_2nd_power_series_regular(eq, func, order, match):
 
     >>> eq = x*(f(x).diff(x, 2)) + 2*(f(x).diff(x)) + x*f(x)
     >>> pprint(dsolve(eq), use_unicode=False)
-                                  /    6    4    2    \
-                                  |   x    x    x     |
-              /  4    2    \   C1*|- --- + -- - -- + 1|
-              | x    x     |      \  720   24   2     /    / 6\
-    f(x) = C2*|--- - -- + 1| + ------------------------ + O\x /
-              \120   6     /              x
-
+                       2       4                   3       5
+                   C2*x    C2*x    C1   C1*x   C1*x    C1*x     / 6\
+    [{f: x -> C2 - ----- + ----- + -- - ---- + ----- - ----- + O\x /}]
+                     6      120    x     2       24     720
 
     References
     ==========
@@ -3750,7 +3812,7 @@ def ode_nth_linear_euler_eq_homogeneous(eq, func, order, match, returns='sol'):
 
     >>> dsolve(4*x**2*f(x).diff(x, 2) + f(x), f(x),
     ...        hint='nth_linear_euler_eq_homogeneous')
-    Eq(f(x), sqrt(x)*(C1 + C2*log(x)))
+    [{f: Lambda(x, sqrt(x)*(C1 + C2*log(x)))}]
 
     Note that because this method does not involve integration, there is no
     ``nth_linear_euler_eq_homogeneous_Integral`` hint.
@@ -3775,8 +3837,8 @@ def ode_nth_linear_euler_eq_homogeneous(eq, func, order, match, returns='sol'):
     >>> pprint(dsolve(eq, f(x),
     ...               hint='nth_linear_euler_eq_homogeneous'),
     ...        use_unicode=False)
-            2
-    f(x) = x *(C1 + C2*x)
+               2
+    [{f: x -> x *(C1 + C2*x)}]
 
     References
     ==========
@@ -4007,17 +4069,19 @@ def ode_almost_linear(eq, func, order, match):
         f(x)*--(l(y)) + g(x) + k(x)*l(y) = 0
              dy
         >>> pprint(dsolve(genform, hint = 'almost_linear'), use_unicode=False)
-                         /     //   -y*g(x)                  \\
-                         |     ||   --------     for k(x) = 0||
-                -y*k(x)  |     ||     f(x)                   ||
-                -------- |     ||                            ||
-                  f(x)   |     ||  y*k(x)                    ||
-        l(y) = E        *|C1 + |<  ------                    ||
-                         |     ||   f(x)                     ||
-                         |     ||-E      *g(x)               ||
-                         |     ||--------------   otherwise  ||
-                         |     ||     k(x)                   ||
-                         \     \\                            //
+                  /     -y*k(x)
+                  |     --------
+                  |       f(x)   /     y*g(x)\
+                  |    E        *|C1 - ------|      for k(x) = 0
+                  |              \      f(x) /
+                  |
+        [{l: y -> <          /   y*k(x)          \              }]
+                  | -y*k(x)  |   ------          |
+                  | -------- |    f(x)           |
+                  |   f(x)   |  E      *g(x)     |
+                  |E        *|- ------------ + C1|   otherwise
+                  |          \      k(x)         /
+                  \
 
     See Also
     ========
@@ -4029,10 +4093,10 @@ def ode_almost_linear(eq, func, order, match):
     >>> d = f(x).diff(x)
     >>> eq = x*d + x*f(x) + 1
     >>> dsolve(eq, f(x), hint='almost_linear')
-    Eq(f(x), E**(-x)*(C1 - Ei(x)))
+    [{f: Lambda(x, E**(-x)*(C1 - Ei(x)))}]
     >>> pprint(dsolve(eq, f(x), hint='almost_linear'), use_unicode=False)
-            -x
-    f(x) = E  *(C1 - Ei(x))
+                   -x
+    [{f: x -> E  *(C1 - Ei(x))}]
 
     References
     ==========
@@ -4268,11 +4332,10 @@ def ode_1st_power_series(eq, func, order, match):
 
     >>> eq = exp(x)*(f(x).diff(x)) - f(x)
     >>> pprint(dsolve(eq, hint='1st_power_series'), use_unicode=False)
-                           3       4       5
-                       C1*x    C1*x    C1*x     / 6\
-    f(x) = C1 + C1*x - ----- + ----- + ----- + O\x /
-                         6       24      60
-
+                              3       4       5
+                          C1*x    C1*x    C1*x     / 6\
+    [{f: x -> C1 + C1*x - ----- + ----- + ----- + O\x /}]
+                            6       24      60
 
     References
     ==========
@@ -4345,11 +4408,11 @@ def ode_nth_linear_constant_coeff_homogeneous(eq, func, order, match,
 
     >>> dsolve(f(x).diff(x, 5) + 10*f(x).diff(x) - 2*f(x), f(x),
     ...        hint='nth_linear_constant_coeff_homogeneous')
-    Eq(f(x), E**(x*RootOf(_x**5 + 10*_x - 2, 0))*C1 +
-    E**(x*RootOf(_x**5 + 10*_x - 2, 1))*C2 +
-    E**(x*RootOf(_x**5 + 10*_x - 2, 2))*C3 +
-    E**(x*RootOf(_x**5 + 10*_x - 2, 3))*C4 +
-    E**(x*RootOf(_x**5 + 10*_x - 2, 4))*C5)
+    [{f: Lambda(x, E**(x*RootOf(_x**5 + 10*_x - 2, 0))*C1 +
+                E**(x*RootOf(_x**5 + 10*_x - 2, 1))*C2 +
+                E**(x*RootOf(_x**5 + 10*_x - 2, 2))*C3 +
+                E**(x*RootOf(_x**5 + 10*_x - 2, 3))*C4 +
+                E**(x*RootOf(_x**5 + 10*_x - 2, 4))*C5)}]
 
     Note that because this method does not involve integration, there is no
     ``nth_linear_constant_coeff_homogeneous_Integral`` hint.
@@ -4374,8 +4437,8 @@ def ode_nth_linear_constant_coeff_homogeneous(eq, func, order, match,
     ...               2*f(x).diff(x, 2) - 6*f(x).diff(x) + 5*f(x), f(x),
     ...               hint='nth_linear_constant_coeff_homogeneous'),
     ...        use_unicode=False)
-            x                -2*x
-    f(x) = E *(C3 + C4*x) + E    *(C1*sin(x) + C2*cos(x))
+               -2*x / 3*x       3*x                             \
+    [{f: x -> E    *\E   *C3 + E   *C4*x + C1*sin(x) + C2*cos(x)/}]
 
     References
     ==========
@@ -4502,10 +4565,10 @@ def ode_nth_linear_constant_coeff_undetermined_coefficients(eq, func, order, mat
     ...               4*exp(-x)*x**2 + cos(2*x), f(x),
     ...               hint='nth_linear_constant_coeff_undetermined_coefficients'),
     ...        use_unicode=False)
-                                           /             4\
-             4*sin(2*x)   3*cos(2*x)    -x |            x |
-    f(x) = - ---------- + ---------- + E  *|C1 + C2*x + --|
-                 25           25           \            3 /
+                  /     x               x                         4\
+               -x |  4*E *sin(2*x)   3*E *cos(2*x)               x |
+    [{f: x -> E  *|- ------------- + ------------- + C1 + C2*x + --|}]
+                  \        25              25                    3 /
 
     References
     ==========
@@ -4822,10 +4885,10 @@ def ode_nth_linear_constant_coeff_variation_of_parameters(eq, func, order, match
     ...        3*f(x).diff(x) - f(x) - exp(x)*log(x), f(x),
     ...        hint='nth_linear_constant_coeff_variation_of_parameters'),
     ...        use_unicode=False)
-              /                     3                \
-            x |                2   x *(6*log(x) - 11)|
-    f(x) = E *|C1 + C2*x + C3*x  + ------------------|
-              \                            36        /
+                 /                     3              3\
+               x |                2   x *log(x)   11*x |
+    [{f: x -> E *|C1 + C2*x + C3*x  + --------- - -----|}]
+                 \                        6         36 /
 
     References
     ==========
@@ -5066,10 +5129,10 @@ def ode_lie_group(eq, func, order, match):
 
     >>> pprint(dsolve(f(x).diff(x) + 2*x*f(x) - x*exp(-x**2), f(x),
     ...               hint='lie_group'), use_unicode=False)
-              2 /      2\
-            -x  |     x |
-    f(x) = E   *|C1 + --|
-                \     2 /
+                 2 /      2\
+               -x  |     x |
+    [{f: x -> E   *|C1 + --|}]
+                   \     2 /
 
     References
     ==========
