@@ -258,7 +258,7 @@ def dup_gf_random(n, K):
     Examples
     ========
 
-    >>> dup_gf_random(4, FF(5))  # doctest: +SKIP
+    >>> dup_gf_random(4, FF(5))
     [1 mod 5, 4 mod 5, 4 mod 5, 2 mod 5, 1 mod 5]
 
     """
@@ -272,7 +272,7 @@ def dup_gf_irreducible(n, K):
     Examples
     ========
 
-    >>> dup_gf_irreducible(4, FF(5))  # doctest: +SKIP
+    >>> dup_gf_irreducible(4, FF(5))
     [1 mod 5, 2 mod 5, 4 mod 5, 4 mod 5, 3 mod 5]
     >>> dup_gf_irreducible_p(_, FF(5))
     True

@@ -924,8 +924,8 @@ def dup_random(n, a, b, K, percent=None):
     Examples
     ========
 
-    >>> dup_random(3, -10, 10, ZZ)  # doctest: +SKIP
-    [-2, -8, 9, -4]
+    >>> dup_random(3, -10, 10, ZZ)
+    [2, 3, -9, -2]
 
     """
     if percent is None:
