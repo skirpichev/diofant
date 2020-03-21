@@ -160,8 +160,8 @@ class AlgebraicField(CharacteristicZero, SimpleDomain, Field):
 
     @property
     def ring(self):
-        raise NotImplementedError("ring of integers of %s is not "
-                                  "implemented yet" % self)
+        from .algebraicintegers import AlgebraicIntegers
+        return AlgebraicIntegers(self)
 
     def is_normal(self, a):
         return self.domain.is_normal(a.LC())
@@ -173,6 +173,11 @@ class AlgebraicField(CharacteristicZero, SimpleDomain, Field):
         for r in minpoly.all_roots(radicals=False):  # pragma: no branch
             if not minimal_polynomial(ext - r)(0):
                 return r.as_content_primitive()
+
+    @property
+    def degree(self):
+        """Return degree of the algebraic field extension."""
+        return self.minpoly.degree()
 
 
 class ComplexAlgebraicField(AlgebraicField):
