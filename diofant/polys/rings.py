@@ -517,6 +517,9 @@ class PolyElement(DomainElement, CantSympify, dict):
                 del self[k]
 
     def __setitem__(self, key, item):
+        if self._hash is not None:
+            raise RuntimeError(f"Polynomial element {self} can't be"
+                               ' modified anymore.')
         if not isinstance(key, Monomial):
             key = Monomial(key)
         super().__setitem__(key, item)
