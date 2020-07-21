@@ -389,17 +389,17 @@ class Poly(Expr):
             raise PolynomialError('not a polynomial over a Galois field')
 
     def _eval_subs(self, old, new):
-        """Internal implementation of :func:`~diofant.core.basic.Basic.subs`."""
         if old in self.gens:
             if new.is_number:
                 return self.eval(old, new)
-            else:
-                try:
-                    return self.replace(old, new)
-                except PolynomialError:
-                    pass
+            elif new not in self.gens:
+                dom = self.domain
 
-        return self.as_expr().subs({old: new})
+                if not dom.is_Composite or new not in dom.symbols:
+                    gens = list(self.gens)
+                    gens[gens.index(old)] = new
+                    rep = dom.poly_ring(*gens).from_dict(dict(self.rep))
+                    return self.per(rep, gens=gens)
 
     def exclude(self):
         """
@@ -422,38 +422,6 @@ class Poly(Expr):
                 pass
 
         return self.per(rep, gens=rep.ring.symbols)
-
-    def replace(self, x, y=None):
-        """
-        Replace ``x`` with ``y`` in generators list.
-
-        Examples
-        ========
-
-        >>> Poly(x**2 + 1).replace(x, y)
-        Poly(y**2 + 1, y, domain='ZZ')
-
-        """
-        if y is None:
-            if self.is_univariate:
-                x, y = self.gen, x
-            else:
-                raise PolynomialError(
-                    'syntax supported only in univariate case')
-
-        if x == y:
-            return self
-
-        if x in self.gens and y not in self.gens:
-            dom = self.domain
-
-            if not dom.is_Composite or y not in dom.symbols:
-                gens = list(self.gens)
-                gens[gens.index(x)] = y
-                rep = dom.poly_ring(*gens).from_dict(dict(self.rep))
-                return self.per(rep, gens=gens)
-
-        raise PolynomialError(f"can't replace {x} with {y} in {self}")
 
     def reorder(self, *gens, **args):
         """

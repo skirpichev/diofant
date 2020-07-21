@@ -694,7 +694,7 @@ def primitive_element(extension, **args):
             break
     else:
         if len(F) == 1:
-            g, coeffs, H = F[0].replace(x), [Integer(1)], [Poly(x, domain=domain)]
+            g, coeffs, H = F[0].subs({Y[0]: x}), [Integer(1)], [Poly(x, domain=domain)]
         else:  # pragma: no cover
             raise RuntimeError('run out of coefficient configurations')
 
@@ -722,7 +722,7 @@ def field_isomorphism_pslq(a, b):
     f = a.minpoly
     x = f.gen
 
-    g = b.minpoly.replace(x)
+    g = b.minpoly.subs({b.minpoly.gen: x})
     m = g.degree()
 
     a, b = a.ext, b.ext
