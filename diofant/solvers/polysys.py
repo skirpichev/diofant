@@ -2,7 +2,6 @@
 
 import collections
 
-from ..domains import EX
 from ..matrices import Matrix
 from ..polys import groebner, poly
 from ..polys.polyerrors import ComputationFailed, PolificationFailed
@@ -108,7 +107,6 @@ def solve_poly_system(eqs, *gens, **args):
 
     """
     try:
-        args['extension'] = False
         polys, opt = parallel_poly_from_expr(eqs, *gens, **args)
         polys = [p.to_exact() for p in polys]
     except PolificationFailed as exc:
@@ -116,7 +114,7 @@ def solve_poly_system(eqs, *gens, **args):
 
     def _solve_reduced_system(system, gens):
         """Recursively solves reduced polynomial systems."""
-        basis = groebner(system, *gens, polys=True, extension=False)
+        basis = groebner(system, *gens, polys=True)
         dim = basis.dimension
         solutions = []
 
@@ -145,36 +143,45 @@ def solve_poly_system(eqs, *gens, **args):
                                for _ in gens) for s in solutions):
                         solutions.insert(0, special)
 
+            return solutions
         else:
-            # By the elimination property, the last polynomial should
-            # be univariate in the last variable.
-            f = basis[-1]
-            gen = gens[-1]
+            def _eliminate(basis, gens):
+                # By the elimination property, the last polynomial should
+                # be univariate in the last variable.
+                solutions = []
 
-            zeros = {k.doit() for k in f.exclude().all_roots()}
+                if not basis:
+                    return [{}]
 
-            if len(basis) == 1:
-                return [{gen: zero} for zero in zeros]
+                f = basis[-1]
+                gen = gens[-1]
 
-            new_basis = [b.set_domain(EX) for b in basis[:-1]]
+                zeros = {k.doit() for k in f.exclude().all_roots()}
 
-            # Now substitute zeros for the last variable and
-            # solve recursively new obtained zero-dimensional systems.
-            for zero in zeros:
-                new_system = []
-                new_gens = gens[:-1]
+                if len(basis) == 1:
+                    return [{gen: zero} for zero in zeros]
 
-                for b in new_basis:
-                    eq = b.eval(gen, zero)
+                new_basis = basis[:-1]
 
-                    if not eq.is_zero:
-                        new_system.append(eq)
+                # Now substitute zeros for the last variable and
+                # solve recursively new obtained zero-dimensional systems.
+                for zero in zeros:
+                    new_system = []
+                    new_gens = gens[:-1]
 
-                for solution in _solve_reduced_system(new_system, new_gens):
-                    solution[gen] = zero
-                    solutions.append(solution)
+                    for b in new_basis:
+                        eq = b.eval(gen, zero)
 
-        return solutions
+                        if not eq.is_zero:
+                            new_system.append(eq)
+
+                    for solution in _eliminate(new_system, new_gens):
+                        solution[gen] = zero
+                        solutions.append(solution)
+
+                return solutions
+
+            return _eliminate(basis, gens)
 
     result = _solve_reduced_system(polys, opt.gens)
 
