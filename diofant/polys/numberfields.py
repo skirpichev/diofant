@@ -512,6 +512,49 @@ def _minpoly_compose(ex, x, dom):
     return res
 
 
+_wl_session = None
+
+
+def _minpoly_wolfram(ex, x, domain):
+    from wolframclient.evaluation import WolframLanguageSession
+    from wolframclient.language import wl, wlexpr
+    from wolframclient.language.expression import WLFunction, WLSymbol
+
+    from diofant import Add, Mul, Pow, Rational, Symbol, mathematica_code
+
+    global _wl_session
+
+    def _parse_wl_expr(e):
+        if isinstance(e, WLFunction):
+            head = e.head
+            args = [_parse_wl_expr(a) for a in e.args]
+            if head == wl.Plus:
+                return Add(*args)
+            elif head == wl.Times:
+                return Mul(*args)
+            elif head == wl.Power and len(args) == 2:
+                return Pow(*args)
+            elif head == wl.Rational:
+                return Rational(*args)
+            else:
+                raise NotImplementedError
+        elif isinstance(e, WLSymbol):
+            return Symbol(e.name.replace('Global`', ''))
+        else:
+            return e
+
+    ex = mathematica_code(ex)
+    ex = wlexpr('MinimalPolynomial[' + ex + ', t]')
+
+    if not _wl_session:
+        _wl_session = WolframLanguageSession()
+
+    r = _wl_session.evaluate(ex)
+    r = _parse_wl_expr(r)
+
+    return PurePoly(r.subs({Symbol('t'): x}), x, domain=domain)
+
+
 @cacheit
 def minimal_polynomial(ex, method=None, **args):
     """
@@ -548,7 +591,8 @@ def minimal_polynomial(ex, method=None, **args):
     """
     if method is None:
         method = query('minpoly_method')
-    _minpoly_methods = {'compose': _minpoly_compose, 'groebner': minpoly_groebner}
+    _minpoly_methods = {'compose': _minpoly_compose, 'groebner': minpoly_groebner,
+                        'wolfram': _minpoly_wolfram}
     try:
         _minpoly = _minpoly_methods[method]
     except KeyError:
