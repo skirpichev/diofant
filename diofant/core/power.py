@@ -344,9 +344,9 @@ class Pow(Expr):
             return True
         elif b.is_positive and (e.is_real or e.is_positive):
             return True
-        elif b.is_negative and e.is_integer:
+        elif b.is_negative and b.is_finite and e.is_integer:
             return e.is_even
-        elif b.is_nonpositive and e.is_odd:
+        elif b.is_nonpositive and b.is_finite and e.is_odd:
             return False
         elif b in {I, -I} and e.is_imaginary:
             return True
@@ -360,7 +360,7 @@ class Pow(Expr):
 
     def _eval_is_negative(self):
         if self.base.is_negative:
-            if self.exp.is_odd:
+            if self.exp.is_odd and self.base.is_finite:
                 return True
             if self.exp.is_even:
                 return False
