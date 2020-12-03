@@ -9,6 +9,8 @@ New features
 
 * Support modular exponentiation of :class:`~diofant.polys.rings.PolyElement`'s, see :pull:`1032`.
 * :func:`~diofant.solvers.inequalities.reduce_inequalities` support solving linear inequalities with Fourier-Motzkin elimination algorithm, see :pull:`1063`.
+* Added :class:`~diofant.domains.FiniteRing` for modular integers, see :pull:`876`.
+* Implemented :meth:`~diofant.polys.fields.FracElement.compose` for functional composition in the fields of fractions, see :pull:`1100`.
 
 Major changes
 =============
@@ -17,6 +19,7 @@ Major changes
 * Module :mod:`~diofant.polys.factortools` was ported to use sparse polynomial representation, see :pull:`1015`, :pull:`1018`, :pull:`1019`, :pull:`1020` and :pull:`1021`.
 * Module :mod:`~diofant.polys.rootisolation` was ported to use sparse polynomial representation, finally the dense representation is used nowhere, see :pull:`1030`, :pull:`1031` and :pull:`1035`.
 * :func:`~diofant.solvers.inequalities.reduce_inequalities` uses :class:`~diofant.sets.fancysets.ExtendedReals` subsets to solve inequalities, see :pull:`1067`.
+* Added new algorithm for factorization of multivariate polynomials over :class:`~diofant.domains.AlgebraicField`'s (uses Hensel lifting), see :pull:`876`.  Thanks to Katja Sophie Hotz.  Thanks to Kalevi Suominen for help with review.
 
 Compatibility breaks
 ====================
@@ -28,6 +31,8 @@ Compatibility breaks
 * Drop ``sring()``, ``poly_from_expr()``, ``gcd_list()`` and ``lcm_list()`` functions, see :pull:`1037`, :pull:`1057` and :pull:`1086`.
 * Functions and classes of the :mod:`~diofant.polys.polytools` module do not support anymore iterables as polynomial generator, see :pull:`1039`.
 * Drop unused functions ``dispersion()``, ``dispersionset()`` and ``degree_list()``, see :pull:`1051` and :pull:`1053`.
+* Drop rich comparison methods from the :class:`~diofant.polys.fields.FracElement`, see :pull:`1101`.
+* :func:`~diofant.polys.polytools.Poly.from_list` support now ascending order of coefficients (i.e., the leading coefficient of univariate polynomial is coming last), see :pull:`1103`.
 
 Minor changes
 =============
@@ -67,3 +72,13 @@ These Sympy issues also were addressed:
 * :sympyissue:`9479` Cannot solve multivariate inequalities
 * :sympyissue:`20365` Limit Bug
 * :sympyissue:`20360` Incorrect definite integration of simple exponential involving pi
+* :sympyissue:`20389` TypeError: Argument of Integer should be of numeric type, got -oo
+* :sympyissue:`20391` Linear programming with simplex method
+* :sympyissue:`19161` When applying simplify on a Poly it fails
+* :sympyissue:`20397` bug in dividing polynomials by module
+* :sympyissue:`19196` Slow f.factor_list
+* :sympyissue:`20491` Inconsistencies in pretty printing in a notebook
+* :sympyissue:`20490` LaTeX printing of negative constant PolyElement
+* :sympyissue:`20484` Need more utility for polynomial substitution
+* :sympyissue:`20485` Rational powers for non-monomial PolyElement
+* :sympyissue:`20487` LaTeX printing errors for puiseux polynomial

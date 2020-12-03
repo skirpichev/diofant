@@ -432,7 +432,12 @@ class _Factor:
                 for h in self._gf_factor_sqf(g):
                     factors.append((h, n))
         elif domain.is_AlgebraicField:
-            coeff, factors = self._aa_factor_trager(f)
+            from .factorization_alg_field import efactor
+
+            _factor_aa_methods = {'trager': self._aa_factor_trager,
+                                  'modular': efactor}
+            method = _factor_aa_methods[query('AA_FACTOR_METHOD')]
+            coeff, factors = method(f)
         else:
             if not domain.is_Exact:
                 domain_inexact, domain = domain, domain.get_exact()
@@ -772,7 +777,7 @@ class _Factor:
                 if not coeff:
                     continue
 
-                T = self._univar_zz_diophantine(F, n - i, p)
+                T = self._univar_zz_diophantine(F, i, p)
 
                 for j, (s, t) in enumerate(zip(S, T)):
                     t = t.mul_ground(coeff)
@@ -807,7 +812,7 @@ class _Factor:
                     break
 
                 M *= m
-                C = c.diff(x=n, m=k + 1).eval(x=n, a=a)
+                C = c.diff(x=n, m=int(k + 1)).eval(x=n, a=a)
 
                 if not C.is_zero:
                     C = C.quo_ground(domain.factorial(k + 1))
@@ -1105,7 +1110,7 @@ class _Factor:
                     break
 
                 M *= m
-                C = c.diff(x=w, m=k + 1).eval(x=w, a=a)
+                C = c.diff(x=w, m=int(k + 1)).eval(x=w, a=a)
 
                 if not C.is_zero:
                     C = C.quo_ground(domain.factorial(k + 1))
@@ -1162,7 +1167,7 @@ class _Factor:
         for i in range(1, (n - 1)*q + 1):
             c, r[1:], r[0] = r[-1], r[:-1], domain.zero
             for j in range(n):
-                r[j] -= c*f[-j - 1]
+                r[j] -= c*f[j]
 
             if not (i % q):
                 Q[i//q] = r.copy()
@@ -1199,7 +1204,7 @@ class _Factor:
         V = Q.T.nullspace()
 
         for i, v in enumerate(V):
-            V[i] = self.from_list(list(reversed(v)))
+            V[i] = self.from_list(v)
 
         factors = [f]
 
