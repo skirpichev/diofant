@@ -93,7 +93,7 @@ zero apart from one that is merely very small. The working precision is
 therefore capped, by default to around 100 digits. If we try with the 1000'th
 Fibonacci number, the following happens:
 
-    >>> N(fibonacci(1000) - (GoldenRatio)**1000/sqrt(5))
+    >>> N(fibonacci(1000) - GoldenRatio**1000/sqrt(5))
     Traceback (most recent call last):
     ...
     PrecisionExhausted: ...
@@ -101,7 +101,7 @@ Fibonacci number, the following happens:
 The exception indicates that ``N`` failed to achieve full accuracy.  To force a
 higher working precision, the ``maxn`` keyword argument can be used:
 
-    >>> N(fibonacci(1000) - (GoldenRatio)**1000/sqrt(5), maxn=500)
+    >>> N(fibonacci(1000) - GoldenRatio**1000/sqrt(5), maxn=500)
     -4.60123853010113e-210
 
 
@@ -266,7 +266,6 @@ precision. For example, this Ramanujan formula for pi can be summed to 10,000
 digits in a fraction of a second with a simple command:
 
     >>> f = factorial
-    >>> n = Symbol('n', integer=True)
     >>> R = 9801/sqrt(8)/Sum(f(4*n)*(1103+26390*n)/f(n)**4/396**(4*n),
     ...                      (n, 0, oo))
     >>> N(R, 10000, strict=False)
@@ -337,7 +336,6 @@ Here are several more advanced examples:
      ----
       2
     E
-    >>> n = Symbol('n')
     >>> nsimplify(Sum(1/n**2, (n, 1, oo)), [pi])
       2
     pi

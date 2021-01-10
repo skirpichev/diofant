@@ -2,12 +2,8 @@
 
 import collections
 
-from ..core import Mul, S, sympify
+from ..core import Integer, Mul
 from ..printing.defaults import DefaultPrinting
-from .polyutils import dict_from_expr
-
-
-__all__ = 'Monomial', 'itermonomials'
 
 
 def itermonomials(variables, degree):
@@ -22,7 +18,7 @@ def itermonomials(variables, degree):
 
     """
     if not variables:
-        yield S.One
+        yield Integer(1)
     else:
         x, tail = variables[0], variables[1:]
 
@@ -36,12 +32,16 @@ class Monomial(tuple, DefaultPrinting):
 
     def __new__(cls, monom, gens=None):
         """Create and return the Monomial object."""
+        from .polytools import Poly
+
         if not isinstance(monom, collections.abc.Iterable):
-            rep, gens = dict_from_expr(sympify(monom), gens=gens)
-            if len(rep) == 1 and list(rep.values())[0] == 1:
+            poly = Poly(monom, gens=gens)
+            rep = poly.rep
+            gens = poly.gens
+            if not rep.is_zero and rep.is_monomial:
                 monom = list(rep)[0]
             else:
-                raise ValueError("Expected a monomial got %s" % monom)
+                raise ValueError(f'Expected a monomial got {monom}')
 
         obj = super().__new__(cls, map(int, monom))
         obj.gens = gens
@@ -62,7 +62,7 @@ class Monomial(tuple, DefaultPrinting):
         gens = gens or self.gens
 
         if not gens:
-            raise ValueError("can't convert %s to an expression without generators" % str(self))
+            raise ValueError(f"Can't convert {self} to an expression without generators")
 
         return Mul(*[gen**exp for gen, exp in zip(gens, self)])
 
@@ -88,16 +88,14 @@ class Monomial(tuple, DefaultPrinting):
         if other is not None:
             return all(a <= b for a, b in zip(self, other))
         else:
-            raise TypeError("an instance of Monomial expected, got %s" % orig)
+            raise TypeError(f'An instance of {self.__class__.__name__} expected, got {orig}')
 
-    def __pow__(self, other):
+    def __pow__(self, n):
         """Return pow(self, other)."""
-        n = int(other)
-
-        if n >= 0:
+        if isinstance(n, int) and n >= 0:
             return self.__class__((a * n for a in self), self.gens)
         else:
-            raise ValueError("a non-negative integer expected, got %s" % other)
+            raise ValueError(f'A non-negative integer expected, got {n}')
 
     def gcd(self, other):
         """Greatest common divisor of monomials."""
@@ -105,7 +103,7 @@ class Monomial(tuple, DefaultPrinting):
         if other is not None:
             return self.__class__((min(a, b) for a, b in zip(self, other)), self.gens)
         else:
-            raise TypeError("an instance of Monomial expected, got %s" % orig)
+            raise TypeError(f'An instance of {self.__class__.__name__} expected, got {orig}')
 
     def lcm(self, other):
         """Least common multiple of monomials."""
@@ -113,4 +111,4 @@ class Monomial(tuple, DefaultPrinting):
         if other is not None:
             return self.__class__((max(a, b) for a, b in zip(self, other)), self.gens)
         else:
-            raise TypeError("an instance of Monomial expected, got %s" % orig)
+            raise TypeError(f'An instance of {self.__class__.__name__} expected, got {orig}')

@@ -1,12 +1,10 @@
 import pytest
 
+from diofant import (Eq, Function, Heaviside, I, Max, Min, Piecewise, Pow,
+                     Rational, Symbol, cbrt, ceiling, cos, floor, oo,
+                     real_root, root, sin, sqrt, symbols, true, zoo)
 from diofant.abc import x, y, z
-from diofant.core import (Eq, Function, I, Pow, Rational, Symbol, oo, symbols,
-                          zoo)
 from diofant.core.function import ArgumentIndexError
-from diofant.functions import (Heaviside, Max, Min, Piecewise, cbrt, ceiling,
-                               cos, floor, real_root, root, sin, sqrt)
-from diofant.logic import true
 
 
 __all__ = ()
@@ -214,6 +212,7 @@ def test_root():
 def test_real_root():
     assert real_root(-8, 3) == -2
     assert real_root(-16, 4) == root(-16, 4)
+    assert real_root(x, 2) == sqrt(x)
     r = root(-7, 4)
     assert real_root(r) == r
     r1 = root(-1, 3)
@@ -222,7 +221,6 @@ def test_real_root():
     assert real_root(r1 + r2 + r3) == -1 + r2 + r3
     assert real_root(root(-2, 3)) == -root(2, 3)
     assert real_root(-8., 3) == -2
-    x = Symbol('x')
     n = Symbol('n')
     g = real_root(x, n)
     assert g.subs({x: -8, n: 3}) == -2

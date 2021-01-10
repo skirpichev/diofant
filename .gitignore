@@ -51,5 +51,8 @@ Diofant.egg-info/
 # Pytest cache
 .pytest_cache/
 
+# Mypy cache
+.mypy_cache/
+
 # airspeed data
 .asv/
