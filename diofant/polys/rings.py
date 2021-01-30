@@ -503,7 +503,7 @@ class PolyElement(DomainElement, CantSympify, dict):
         for coeff in self.values():
             common = lcm(common, coeff.denominator)
 
-        f = self.mul_ground(domain.convert(common))
+        f = self*domain.convert(common)
 
         if convert:
             f = f.set_domain(ground_ring)
@@ -594,9 +594,9 @@ class PolyElement(DomainElement, CantSympify, dict):
             mon = tuple(monom[i] for i in range(self.ring.ngens) if i not in indexes)
             gc = functools.reduce(operator.mul, [x**n for x, n in zip(gens, (monom[i] for i in indexes))])
             if mon in poly:
-                poly[mon] += gc.mul_ground(coeff)
+                poly[mon] += gc*coeff
             else:
-                poly[mon] = gc.mul_ground(coeff)
+                poly[mon] = gc*coeff
 
         return poly
 
@@ -782,11 +782,23 @@ class PolyElement(DomainElement, CantSympify, dict):
     def __mul__(self, other):
         """Multiply two polynomials."""
         ring = self.ring
+        domain = ring.domain
+        zero = ring.zero
+
+        if not other:
+            return zero
+        elif isinstance(other, domain.dtype):
+            result = ring.dtype({monom: self[monom]*other for monom in self})
+            if not (domain.is_Field or domain.is_IntegerRing):
+                result._strip_zero()
+            return result
+
         try:
             other = ring.convert(other)
         except CoercionFailed:
             return NotImplemented
-        result = ring.zero
+
+        result = zero
         for t in self.items():
             result = result._iadd_poly_term(other, t)
         return result
@@ -1208,12 +1220,6 @@ class PolyElement(DomainElement, CantSympify, dict):
         else:
             return self.exquo_ground(self.LC)
 
-    def mul_ground(self, x):
-        if not x:
-            return self.ring.zero
-
-        return self.__class__({monom: self[monom]*x for monom in self})
-
     def mul_monom(self, m):
         return self.__class__({monom*m: self[monom] for monom in self})
 
@@ -1224,7 +1230,7 @@ class PolyElement(DomainElement, CantSympify, dict):
         if not self or not c:
             return ring.zero
         elif m == ring.zero_monom:
-            return self.mul_ground(c)
+            return self*c
 
         return self.__class__({monom*m: self[monom]*c for monom in self})
 
@@ -1329,7 +1335,7 @@ class PolyElement(DomainElement, CantSympify, dict):
         h = (f*g)//f.gcd(g)
 
         if not domain.is_Field:
-            return h.mul_ground(c)
+            return h*c
         else:
             return h.monic()
 
@@ -1402,8 +1408,8 @@ class PolyElement(DomainElement, CantSympify, dict):
         if not include:
             return cp, cq, p, q
 
-        p = p.mul_ground(cp)
-        q = q.mul_ground(cq)
+        p *= domain(cp)
+        q *= domain(cq)
 
         return p, q
 
@@ -1492,7 +1498,7 @@ class PolyElement(DomainElement, CantSympify, dict):
                 n = monom[i]
                 acc *= g**(n - d)
                 d = n
-                poly += acc.mul_ground(coeff)
+                poly += acc*coeff
             return poly
 
         for monom, coeff in self.items():

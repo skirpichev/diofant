@@ -781,7 +781,7 @@ class _Factor:
                 T = self._univar_zz_diophantine(F, i, p)
 
                 for j, (s, t) in enumerate(zip(S, T)):
-                    t = t.mul_ground(coeff)
+                    t *= coeff
                     S[j] = (s + t).trunc_ground(p)
         else:
             n = len(A)
@@ -1049,10 +1049,12 @@ class _Factor:
                 cc = lc//d
             else:
                 g = domain.gcd(lc, d)
-                d, cc = d//g, lc//g
-                h, cs = h.mul_ground(d), cs//d
+                d //= g
+                cc = lc//g
+                h *= d
+                cs //= d
 
-            c = c.mul_ground(cc)
+            c *= cc
 
             CC.append(c)
             HH.append(h)
@@ -1063,10 +1065,10 @@ class _Factor:
         CCC, HHH = [], []
 
         for c, h in zip(CC, HH):
-            CCC.append(c.mul_ground(cs))
-            HHH.append(h.mul_ground(cs))
+            CCC.append(c*cs)
+            HHH.append(h*cs)
 
-        f = f.mul_ground(cs**(len(H) - 1))
+        f *= cs**(len(H) - 1)
 
         return f, HHH, CCC
 
