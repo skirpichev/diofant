@@ -3,7 +3,14 @@
 Installation
 ------------
 
-The Diofant can be installed on any computer with Python 3.7
+.. warning::
+
+    For the development version, please do first::
+
+        pip install git+https://github.com/fredrik-johansson/mpmath.git@1bb25a4
+
+
+The Diofant can be installed on any computer with Python 3.9
 or above.  You can install latest release with pip::
 
     pip install diofant

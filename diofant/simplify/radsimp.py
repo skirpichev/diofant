@@ -1,11 +1,12 @@
 from collections import defaultdict
 
 from ..core import (Add, Derivative, I, Integer, Mul, Pow, Rational,
-                    expand_mul, expand_power_base, gcd_terms, symbols, sympify)
+                    expand_mul, expand_power_base, gcd_terms, symbols)
 from ..core.compatibility import iterable
 from ..core.exprtools import Factors
 from ..core.function import _mexpand
 from ..core.mul import _keep_coeff, _unevaluated_Mul
+from ..core.sympify import sympify
 from ..functions import log, sqrt
 from ..polys import gcd
 from ..utilities import default_sort_key, ordered
@@ -123,10 +124,10 @@ def collect(expr, syms, func=None, evaluate=True, exact=False, distribute_order_
     >>> collect(a*Derivative(f, x) + b*Derivative(f, x), Derivative(f, x))
     (a + b)*Derivative(f(x), x)
 
-    >>> collect(a*Derivative(f, x, 2) + b*Derivative(f, x, 2), f)
+    >>> collect(a*Derivative(f, (x, 2)) + b*Derivative(f, (x, 2)), f)
     (a + b)*Derivative(f(x), x, x)
 
-    >>> collect(a*Derivative(f, x, 2) + b*Derivative(f, x, 2),
+    >>> collect(a*Derivative(f, (x, 2)) + b*Derivative(f, (x, 2)),
     ...         Derivative(f, x), exact=True)
     a*Derivative(f(x), x, x) + b*Derivative(f(x), x, x)
 
@@ -135,7 +136,8 @@ def collect(expr, syms, func=None, evaluate=True, exact=False, distribute_order_
 
     Or you can even match both derivative order and exponent at the same time:
 
-    >>> collect(a*Derivative(f, x, 2)**2 + b*Derivative(f, x, 2)**2, Derivative(f, x))
+    >>> collect(a*Derivative(f, (x, 2))**2 + b*Derivative(f, (x, 2))**2,
+    ...         Derivative(f, x))
     (a + b)*Derivative(f(x), x, x)**2
 
     Finally, you can apply a function to each of the collected coefficients.

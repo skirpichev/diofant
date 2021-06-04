@@ -1,6 +1,9 @@
+import math
+
 from ..core import (Add, Dummy, Expr, Integer, Mul, Rational, count_ops,
-                    expand_mul, factor_terms, ilcm, sympify)
+                    expand_mul, factor_terms)
 from ..core.function import _mexpand
+from ..core.sympify import sympify
 from ..functions import log, root, sign, sqrt
 from ..polys import Poly, PolynomialError, cancel, degree
 from ..utilities import default_sort_key, ordered
@@ -753,7 +756,7 @@ def unrad(eq, *syms, **flags):
             q = _Q(g)
             if q != 1:
                 rads.add(g)
-                lcm = ilcm(lcm, q)
+                lcm = math.lcm(lcm, q)
                 bases.add(g.base)
         return rads, bases, lcm
     rads, bases, lcm = _rads_bases_lcm(poly)

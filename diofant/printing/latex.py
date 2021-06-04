@@ -2,8 +2,11 @@
 A Printer which converts an expression into its LaTeX equivalent.
 """
 
+from __future__ import annotations
+
 import itertools
 import re
+import typing
 
 import mpmath.libmp as mlib
 from mpmath.libmp import prec_to_dps
@@ -112,7 +115,7 @@ class LatexPrinter(Printer):
 
     printmethod = '_latex'
 
-    _default_settings = {
+    _default_settings: dict[str, typing.Any] = {
         'order': None,
         'mode': 'plain',
         'itex': False,
@@ -1269,8 +1272,6 @@ class LatexPrinter(Printer):
             out_str = r'\left' + left_delim + out_str + \
                       r'\right' + right_delim
         return out_str % r'\\'.join(lines)
-    _print_ImmutableMatrix = _print_MatrixBase
-    _print_Matrix = _print_MatrixBase
 
     def _print_MatrixSlice(self, expr):
         def latexslice(x):

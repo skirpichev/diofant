@@ -229,6 +229,9 @@ def test_pow_as_base_exp():
     assert p.base, p.exp == p.as_base_exp() == (2, -x)
     # issue sympy/sympy#8344:
     assert Pow(1, 2, evaluate=False).as_base_exp() == (1, 2)
+    # issue sympy/sympy#21396
+    assert I.as_base_exp() == (-1, Rational(1, 2))
+    assert sqrt(I).as_base_exp() == (-1, Rational(1, 4))
 
 
 def test_sympyissue_6100():
@@ -344,7 +347,7 @@ def test_sympyissue_12578():
     assert s.series(x, n=17) == (1 - 2*x**4 - 8*x**6 - 34*x**8 -
                                  152*x**10 - 714*x**12 - 3472*x**14 -
                                  17318*x**16 + O(x**17))
-    d10 = s.diff(x, 10)
+    d10 = s.diff((x, 10))
     assert d10.limit(x, 0) == -551577600
 
 

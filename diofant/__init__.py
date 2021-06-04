@@ -1,9 +1,5 @@
 """Diofant is a Python library for symbolic mathematics."""
 
-import os
-DIOFANT_DEBUG = os.getenv('DIOFANT_DEBUG', 'False') != 'False'
-del os
-
 import pkg_resources
 __version__ = pkg_resources.get_distribution(__name__).version
 del pkg_resources
@@ -18,9 +14,9 @@ from .core import (Add, Atom, AtomicExpr, Basic, Catalan, Derivative, Dict,
                    cacheit, comp, count_ops, diff, evaluate, expand,
                    expand_complex, expand_func, expand_log, expand_mul,
                    expand_multinomial, expand_power_base, expand_power_exp,
-                   expand_trig, factor_nc, factor_terms, gcd_terms, igcd, ilcm,
+                   expand_trig, factor_nc, factor_terms, gcd_terms,
                    integer_digits, integer_nthroot, mod_inverse, nan, nfloat,
-                   oo, pi, preorder_traversal, prod, symbols, sympify, var,
+                   oo, pi, preorder_traversal, symbols, sympify, var,
                    vectorize, zoo)
 from .logic import (ITE, And, Equivalent, Implies, Nand, Nor, Not, Or, POSform,
                     SOPform, Xor, bool_map, false, satisfiable, simplify_logic,
@@ -47,7 +43,7 @@ from .polys import (LC, LM, LT, BasePolynomialError, CoercionFailed,
                     interpolating_poly, invert, itermonomials, jacobi_poly,
                     laguerre_poly, lcm, legendre_poly, lex,
                     minimal_polynomial, monic, nroots, parallel_poly_from_expr,
-                    poly, prem, primitive, primitive_element, quo, random_poly,
+                    poly, primitive, primitive_element, quo, random_poly,
                     real_roots, reduced, rem, resultant, ring, roots,
                     spherical_bessel_fn, sqf, sqf_list, sqf_norm, sqf_part,
                     subresultants, swinnerton_dyer_poly, symmetric_poly,
@@ -57,7 +53,7 @@ from .domains import (CC, EX, FF, GF, GROUND_TYPES, QQ, RR, ZZ, AlgebraicField,
                       ExpressionDomain, FF_gmpy, FF_python, FiniteField,
                       IntegerRing, PythonRational, QQ_gmpy, QQ_python,
                       RationalField, RealAlgebraicField, RealField, ZZ_gmpy,
-                      ZZ_python, FiniteRing)
+                      ZZ_python, IntegerModRing)
 from .series import Limit, O, Order, limit, residue, series
 from .functions import (E1, Abs, Chi, Ci, DiracDelta, Ei, Eijk,
                         FallingFactorial, Heaviside, Id, KroneckerDelta,
@@ -183,9 +179,9 @@ __all__ = (
     'cacheit', 'comp', 'count_ops', 'diff', 'evaluate', 'expand',
     'expand_complex', 'expand_func', 'expand_log', 'expand_mul',
     'expand_multinomial', 'expand_power_base', 'expand_power_exp',
-    'expand_trig', 'factor_nc', 'factor_terms', 'gcd_terms', 'igcd', 'ilcm',
+    'expand_trig', 'factor_nc', 'factor_terms', 'gcd_terms',
     'integer_digits', 'integer_nthroot', 'mod_inverse', 'nan', 'nfloat',
-    'oo', 'pi', 'preorder_traversal', 'prod', 'symbols', 'sympify', 'var',
+    'oo', 'pi', 'preorder_traversal', 'symbols', 'sympify', 'var',
     'vectorize', 'zoo', 'ITE', 'And', 'Equivalent', 'Implies', 'Nand', 'Nor',
     'Not', 'Or', 'POSform', 'SOPform', 'Xor', 'bool_map', 'false',
     'satisfiable', 'simplify_logic', 'to_cnf', 'to_dnf', 'to_nnf', 'true',
@@ -209,7 +205,7 @@ __all__ = (
     'ilex', 'interpolate', 'interpolating_poly', 'invert', 'itermonomials',
     'jacobi_poly', 'laguerre_poly', 'lcm', 'legendre_poly', 'lex',
     'minimal_polynomial', 'monic', 'nroots', 'parallel_poly_from_expr',
-    'poly', 'prem', 'primitive', 'primitive_element', 'quo', 'random_poly',
+    'poly', 'primitive', 'primitive_element', 'quo', 'random_poly',
     'real_roots', 'reduced', 'rem', 'resultant', 'ring', 'roots',
     'spherical_bessel_fn', 'sqf', 'sqf_list', 'sqf_norm', 'sqf_part',
     'subresultants', 'swinnerton_dyer_poly', 'symmetric_poly',
@@ -307,4 +303,4 @@ __all__ = (
     'plot_backends', 'plot_implicit', 'plot_parametric', 'StrPrinter', 'ccode',
     'dotprint', 'fcode', 'latex', 'mathematica_code', 'mathml', 'octave_code',
     'pprint', 'pprint_use_unicode', 'pretty', 'pretty_print', 'python', 'srepr',
-    'sstr', 'sstrrepr', 'init_printing', 'ExtendedReals', 'FiniteRing')
+    'sstr', 'sstrrepr', 'init_printing', 'ExtendedReals', 'IntegerModRing')

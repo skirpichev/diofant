@@ -47,7 +47,7 @@ master_doc = 'index'
 
 # Project information.
 project = 'Diofant'
-copyright = '2006-2018 SymPy Development Team, 2013-2020 Sergey B Kirpichev'
+copyright = '2006-2018 SymPy Development Team, 2013-2021 Sergey B Kirpichev'
 version = diofant.__version__
 release = version
 
@@ -152,7 +152,7 @@ html_theme_options = {
 
 # The inline configuration options for mathjax.  The value is used as
 # a parameter of MathJax.Hub.Config().
-mathjax_config = {
+mathjax3_config = {
     'CommonHTML': {'linebreaks': {'automatic': True}},
     'HTML-CSS': {'linebreaks': {'automatic': True}},
     'SVG': {'linebreaks': {'automatic': True}},

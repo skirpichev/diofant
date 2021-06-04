@@ -179,11 +179,11 @@ def solve_poly_inequality(poly, rel):
     Examples
     ========
 
-    >>> solve_poly_inequality(Poly(x), '==')
+    >>> solve_poly_inequality(x.as_poly(), '==')
     [{0}]
-    >>> solve_poly_inequality(Poly(x**2 - 1), '!=')
+    >>> solve_poly_inequality((x**2 - 1).as_poly(), '!=')
     [[-oo, -1), (-1, 1), (1, oo]]
-    >>> solve_poly_inequality(Poly(x**2 - 1), '==')
+    >>> solve_poly_inequality((x**2 - 1).as_poly(), '==')
     [{-1}, {1}]
 
     See Also
@@ -259,8 +259,8 @@ def solve_poly_inequalities(polys):
     Examples
     ========
 
-    >>> solve_poly_inequalities(((Poly(x**2 - 3), '>'),
-    ...                          (Poly(-x**2 + 1), '>')))
+    >>> solve_poly_inequalities((((+x**2 - 3).as_poly(), '>'),
+    ...                          ((-x**2 + 1).as_poly(), '>')))
     [-oo, -sqrt(3)) U (-1, 1) U (sqrt(3), oo]
 
     """
@@ -274,12 +274,15 @@ def solve_rational_inequalities(eqs):
     Examples
     ========
 
-    >>> solve_rational_inequalities([[((Poly(-x + 1), Poly(1, x)), '>='),
-    ...                               ((Poly(-x + 1), Poly(1, x)), '<=')]])
+    >>> solve_rational_inequalities([[(((-x + 1).as_poly(),
+    ...                                 Integer(1).as_poly(x)), '>='),
+    ...                               (((-x + 1).as_poly(),
+    ...                                 Integer(1).as_poly(x)), '<=')]])
     {1}
 
-    >>> solve_rational_inequalities([[((Poly(x), Poly(1, x)), '!='),
-    ...                               ((Poly(-x + 1), Poly(1, x)), '>=')]])
+    >>> solve_rational_inequalities([[((x.as_poly(), Integer(1).as_poly(x)), '!='),
+    ...                               (((-x + 1).as_poly(),
+    ...                                 Integer(1).as_poly(x)), '>=')]])
     [-oo, 0) U (0, 1]
 
     See Also
@@ -318,6 +321,20 @@ def solve_rational_inequalities(eqs):
 
             if not global_intervals:
                 break
+
+            intervals = []
+            expr = numer.as_expr()/denom.as_expr()
+            expr = Relational(expr, 0, rel)
+            gen = numer.gen
+
+            for interval in global_intervals:
+                if interval.contains(oo) is true and expr.limit(gen, oo, '-') is false:
+                    interval -= FiniteSet(oo)
+                elif interval.contains(-oo) is true and expr.limit(gen, -oo) is false:
+                    interval -= FiniteSet(-oo)
+                intervals.append(interval)
+
+            global_intervals = intervals
 
         for interval in global_intervals:
             result |= interval
@@ -522,6 +539,7 @@ def solve_univariate_inequality(expr, gen, relational=True):
     [-oo, -2] U [2, oo]
 
     """
+    from ..series import limit
     from ..simplify import simplify
     from .solvers import denoms, solve
 
@@ -581,6 +599,12 @@ def solve_univariate_inequality(expr, gen, relational=True):
         sol_sets.append(Interval(start, end, True, end in reals))
 
     rv = Union(*sol_sets)
+
+    if rv.contains(oo) is true and limit(expr, gen, oo, '-') is false:
+        rv -= FiniteSet(oo)
+    elif rv.contains(-oo) is true and limit(expr, gen, -oo) is false:
+        rv -= FiniteSet(-oo)
+
     return rv if not relational else rv.as_relational(gen)
 
 
@@ -591,8 +615,8 @@ def _reduce_inequalities(inequalities, symbols):
         except (PolificationFailed, ValueError):
             pass
 
-    poly_part = collections.defaultdict(list)
-    pw_part = poly_part.copy()
+    rat_part = collections.defaultdict(list)
+    pw_part = rat_part.copy()
     other = []
 
     for inequality in inequalities:
@@ -621,8 +645,8 @@ def _reduce_inequalities(inequalities, symbols):
                                           'is implemented only for linear '
                                           'case yet.')
 
-        if expr.is_polynomial(gen):
-            poly_part[gen].append((expr, rel))
+        if expr.is_rational_function(gen):
+            rat_part[gen].append((expr, rel))
         else:
             components = set(expr.find(lambda u: u.has(gen) and
                                        (u.is_Function or u.is_Pow and
@@ -632,16 +656,16 @@ def _reduce_inequalities(inequalities, symbols):
             else:
                 other.append(solve_univariate_inequality(Relational(expr, 0, rel), gen))
 
-    poly_reduced = []
+    rat_reduced = []
     pw_reduced = []
 
-    for gen, exprs in poly_part.items():
-        poly_reduced.append(reduce_rational_inequalities([exprs], gen))
+    for gen, exprs in rat_part.items():
+        rat_reduced.append(reduce_rational_inequalities([exprs], gen))
 
     for gen, exprs in pw_part.items():
         pw_reduced.append(reduce_piecewise_inequalities(exprs, gen))
 
-    return And(*(poly_reduced + pw_reduced + other))
+    return And(*(rat_reduced + pw_reduced + other))
 
 
 def reduce_inequalities(inequalities, symbols=[]):

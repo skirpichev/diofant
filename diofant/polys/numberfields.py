@@ -1,13 +1,16 @@
 """Computational algebraic field theory."""
 
 import functools
+import math
 
 import mpmath
 
+from ..config import query
 from ..core import (Add, Dummy, E, GoldenRatio, I, Integer, Mul, Rational,
-                    cacheit, pi, prod, sympify)
+                    cacheit, pi)
 from ..core.exprtools import Factors
 from ..core.function import _mexpand, count_ops
+from ..core.sympify import sympify
 from ..domains import QQ, AlgebraicField
 from ..functions import Abs, conjugate, cos, exp_polar, im, re, root, sin, sqrt
 from ..ntheory import divisors, factorint
@@ -16,7 +19,6 @@ from ..simplify.simplify import _is_sum_surds
 from ..utilities import lambdify, numbered_symbols, sift
 from ..utilities.iterables import uniq
 from .orthopolys import chebyshevt_poly
-from .polyconfig import query
 from .polyerrors import NotAlgebraic
 from .polytools import (Poly, PurePoly, degree, factor_list, groebner, lcm,
                         parallel_poly_from_expr, resultant)
@@ -233,7 +235,7 @@ def _minpoly_op_algebraic_element(op, ex1, ex2, x, dom, mp1=None, mp2=None):
         # r = mp2(x - a), so that `r` is irreducible
         return r
 
-    r = Poly(r, x, domain=dom)
+    r = r.as_poly(x, domain=dom)
     _, factors = r.factor_list()
     res = _choose_factor(factors, x, op(ex1, ex2), dom)
     return res.as_expr()
@@ -299,7 +301,7 @@ def _minpoly_pow(ex, pw, x, dom):
     y = Dummy(str(x))
     mp = mp.subs({x: y})
     n, d = pw.as_numer_denom()
-    res = Poly(resultant(mp, x**d - y**n, gens=[y]), x, domain=dom)
+    res = resultant(mp, x**d - y**n, gens=[y]).as_poly(x, domain=dom)
     _, factors = res.factor_list()
     res = _choose_factor(factors, x, ex**pw, dom)
     return res.as_expr()
@@ -526,7 +528,7 @@ def minimal_polynomial(ex, method=None, **args):
         of ``ex`` are computed, then the arithmetic operations on them are
         performed using the resultant and factorization.  If ``groebner``,
         a bottom-up algorithm, using Gröbner bases is used.
-        Defaults are determined by :func:`~diofant.polys.polyconfig.setup`.
+        Defaults are determined by :func:`~diofant.config.setup`.
     domain : Domain, optional
         If no ground domain is given, it will be generated automatically
         from the expression.
@@ -677,7 +679,7 @@ def primitive_element(extension, **args):
     F = [minimal_polynomial(e, domain=domain) for e in extension]
     Y = [p.gen for p in F]
 
-    for u in range(1, (len(F) - 1)*prod(f.degree() for f in F) + 1):
+    for u in range(1, (len(F) - 1)*math.prod(f.degree() for f in F) + 1):
         coeffs = [u**n for n in range(len(Y))]
         f = x - sum(c*y for c, y in zip(coeffs, Y))
 
@@ -694,7 +696,7 @@ def primitive_element(extension, **args):
             break
     else:
         if len(F) == 1:
-            g, coeffs, H = F[0].replace(x), [Integer(1)], [Poly(x, domain=domain)]
+            g, coeffs, H = F[0].replace(x), [Integer(1)], [x.as_poly(domain=domain)]
         else:  # pragma: no cover
             raise RuntimeError('run out of coefficient configurations')
 
@@ -709,7 +711,7 @@ def primitive_element(extension, **args):
     if g.LC() != 1:
         H = [[c/g.LC()**n for n, c in enumerate(h)] for h in H]
         coeffs = [c*g.LC() for c in coeffs]
-        g = (g.compose(Poly(g.gen/g.LC()))*g.LC()**g.degree()//g.LC()).retract()
+        g = (g.compose((g.gen/g.LC()).as_poly())*g.LC()**g.degree()//g.LC()).retract()
 
     return g, list(coeffs), H
 
@@ -751,7 +753,7 @@ def field_isomorphism_factor(a, b):
 
     for f, _ in factors:
         if f.degree() == 1:
-            root = -f.rep.coeff((0,))/f.rep.coeff((1,))
+            root = -f.rep[(0,)]/f.rep[(1,)]
 
             if (a.ext - b.to_expr(root)).evalf(chop=True) == 0:
                 return root.rep.all_coeffs()

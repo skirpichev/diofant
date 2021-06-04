@@ -3,9 +3,9 @@
 import pytest
 
 from diofant import (And, E, Eq, FiniteSet, Float, Ge, Gt, Integer, Integral,
-                     Interval, Le, Lt, Max, Min, Ne, Or, Piecewise, Poly,
-                     PurePoly, Rational, RootOf, S, Symbol, Union, false, log,
-                     oo, pi, reduce_inequalities, root, sin, solve, sqrt, true)
+                     Interval, Le, Lt, Max, Min, Ne, Or, Piecewise, PurePoly,
+                     Rational, RootOf, S, Symbol, Union, false, log, oo, pi,
+                     reduce_inequalities, root, sin, solve, sqrt, true)
 from diofant.abc import x, y
 from diofant.solvers.inequalities import (reduce_piecewise_inequality,
                                           reduce_rational_inequalities,
@@ -64,14 +64,14 @@ def test_solve_linear_inequalities():
 
 
 def test_solve_poly_inequality():
-    assert psolve(Poly(0, x), '==') == [S.ExtendedReals]
-    assert psolve(Poly(1, x), '==') == [S.EmptySet]
+    assert psolve(Integer(0).as_poly(x), '==') == [S.ExtendedReals]
+    assert psolve(Integer(1).as_poly(x), '==') == [S.EmptySet]
     assert psolve(PurePoly(x + 1, x), '>') == [Interval(-1, oo, True, False)]
     pytest.raises(ValueError, lambda: psolve(x, '=='))
-    pytest.raises(ValueError, lambda: psolve(Poly(x, x), '??'))
+    pytest.raises(ValueError, lambda: psolve(x.as_poly(), '??'))
 
-    assert (solve_poly_inequalities(((Poly(x**2 - 3), '>'),
-                                     (Poly(-x**2 + 1), '>'))) ==
+    assert (solve_poly_inequalities((((x**2 - 3).as_poly(), '>'),
+                                     ((-x**2 + 1).as_poly(), '>'))) ==
             Union(Interval(-oo, -sqrt(3), False, True),
                   Interval(-1, 1, True, True),
                   Interval(sqrt(3), oo, True, False)))
@@ -246,7 +246,9 @@ def test_reduce_piecewise_inequalities():
 
     # sympy/sympy#10198
     assert reduce_inequalities(-1 + 1/abs(1/x - 1) < 0) == \
-        Or(And(Lt(0, x), x < Rational(1, 2)), x < 0)
+        Or(And(Lt(0, x), x < Rational(1, 2)), And(-oo < x, x < Integer(0)))
+    assert reduce_inequalities(-1 + 1/abs(-1/x - 1) < 0) == \
+        Or(And(-Rational(1, 2) < x, x < Integer(0)), And(Integer(0) < x, x < oo))
 
     # sympy/sympy#10255
     assert reduce_inequalities(Piecewise((1, x < 1), (3, True)) > 1) == \
@@ -353,12 +355,15 @@ def test_solve_univariate_inequality():
     # handle numerator and denominator; although these would be handled as
     # rational inequalities, these test confirm that the right thing is done
     # when the domain is EX (e.g. when 2 is replaced with sqrt(2))
-    assert isolve(1/(x - 2) > 0, x) == (Integer(2) < x)
+    assert isolve(1/(x - 2) > 0, x) == (Integer(2) < x) & (x < oo)
     den = ((x - 1)*(x - 2)).expand()
     assert isolve((x - 1)/den <= 0, x) == \
         Or(x < 1, And(Integer(1) < x, x < 2))
 
     assert isolve(x > oo, x) is false
+
+    # issue sympy/sympy#10268
+    assert reduce_inequalities(log(x) < 300) == (-oo < x) & (x < E**300)
 
 
 def test_slow_general_univariate():
@@ -380,10 +385,6 @@ def test_sympyissue_8974():
     assert isolve(oo > x, x) == (x < oo)
 
 
-def test_sympyissue_10268():
-    assert reduce_inequalities(log(x) < 300) == (x < E**300)
-
-
 def test_diofantissue_453():
     x = Symbol('x', real=True)
     assert isolve(abs((x - 1)/(x - 5)) <= Rational(1, 3),
@@ -397,3 +398,20 @@ def test_diofantissue_836():
     pytest.raises(NotImplementedError,
                   lambda: reduce_inequalities([x**2*y**2 <= x**2*y,
                                                x**2*y**2 > x**2*y]))
+
+
+def test_sympyissue_20861():
+    assert reduce_inequalities([3/x < 0, x >= 2, x >= 7], x) is false
+
+
+def test_sympyissue_20902():
+    eq = y/((1 + y)**2)
+
+    assert (reduce_inequalities(eq.subs({y: 3*x + 2}).diff(x) > 0) ==
+            (Integer(-1) < x) & (x < Rational(-1, 3)))
+    assert (reduce_inequalities(eq.subs({y: 3*x + 3}).diff(x) > 0) ==
+            (Rational(-4, 3) < x) & (x < Rational(-2, 3)))
+    assert (reduce_inequalities(eq.subs({y: 3*x + 4}).diff(x) > 0) ==
+            (Rational(-5, 3) < x) & (x < Integer(-1)))
+    assert (reduce_inequalities(eq.subs({y: 3*x + 2}).diff(x) > 0) ==
+            (Integer(-1) < x) & (x < Rational(-1, 3)))

@@ -39,6 +39,7 @@ Sparse polynomials are represented as dictionaries.
 
 .. autoclass:: PolyElement
    :members:
+   :special-members:
 
 .. currentmodule:: diofant.polys.univar
 
@@ -330,9 +331,6 @@ Many parts of the polys module are still undocumented, and even where there is
 documentation it is scarce. Please contribute!
 
 .. automodule:: diofant.polys.polyoptions
-    :members:
-
-.. automodule:: diofant.polys.polyconfig
     :members:
 
 .. automodule:: diofant.polys.polyerrors

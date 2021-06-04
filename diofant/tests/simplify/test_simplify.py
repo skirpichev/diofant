@@ -292,6 +292,8 @@ def test_hypersimp():
     term = binomial(n, k)*(-1)**k/factorial(k)
     assert hypersimp(term, k) == (k - n)/(k + 1)**2
 
+    assert hypersimp(2**(I*k) * 2**k, k) == 2**(1 + I)
+
 
 def test_nsimplify():
     assert nsimplify(0) == 0
@@ -665,7 +667,7 @@ def test_sympyissue_12792():
 
 def test_sympyissue_12506():
     expr = 1.0 * cos(x) + 2.0 * cos(asin(0.5 * sin(x)))
-    expr = expr.diff(x, 2)
+    expr = expr.diff((x, 2))
     expr_simp = expr.simplify()
     assert expr_simp.equals(expr)
 

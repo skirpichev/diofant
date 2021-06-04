@@ -5,11 +5,11 @@ import itertools
 import pytest
 
 from diofant import (E, Float, Function, I, Integral, Limit, Piecewise,
-                     PoleError, Rational, Sum, Symbol, acos, atan, besselk,
-                     binomial, cbrt, ceiling, cos, cot, diff, digamma, erf,
-                     erfi, exp, factorial, floor, gamma, integrate, limit, log,
-                     nan, oo, pi, polygamma, root, sign, simplify, sin, sinh,
-                     sqrt, subfactorial, symbols, tan)
+                     PoleError, Rational, Sum, Symbol, acos, asin, atan,
+                     besselk, binomial, cbrt, ceiling, cos, cosh, cot, diff,
+                     digamma, erf, erfi, exp, factorial, floor, gamma,
+                     integrate, limit, log, nan, oo, pi, polygamma, root, sign,
+                     simplify, sin, sinh, sqrt, subfactorial, symbols, tan)
 from diofant.abc import a, b, c, n, x, y, z
 from diofant.series.limits import heuristics
 from diofant.series.order import O
@@ -25,7 +25,7 @@ def test_basic1():
     assert limit(x**2, x, -oo) == oo
     assert limit(-x**2, x, oo) == -oo
     assert limit(x*log(x), x, 0, dir='+') == 0
-    assert limit(1/x, x, oo) == 0
+    assert limit(1/x, x, oo) == 0  # issue sympy/sympy#11667
     assert limit(exp(x), x, oo) == oo
     assert limit(-exp(x), x, oo) == -oo
     assert limit(exp(x)/x, x, oo) == oo
@@ -107,6 +107,10 @@ def test_basic4():
     # coverage test
     l = Limit(Piecewise((x, x > 1), (0, True)), x, -1)
     assert l.doit() == l
+
+    # issue sympy/sympy#16714
+    e = ((n**(n + 1) + (n + 1)**n)/n**(n + 1))**n
+    assert limit(e, n, oo) == E**E
 
 
 def test_basic5():
@@ -652,11 +656,6 @@ def test_sympyissue_16222():
     assert limit(exp(x), x, 1000000000) == exp(1000000000)
 
 
-def test_sympyissue_16714():
-    e = ((n**(n + 1) + (n + 1)**n)/n**(n + 1))**n
-    assert limit(e, n, oo) == E**E
-
-
 @pytest.mark.timeout(20)
 def test_sympyissue_15282():
     assert limit((x**2000 - (x + 1)**2000)/x**1999, x, oo) == -2000
@@ -798,3 +797,60 @@ def test_sympyissue_14874():
 
 def test_sympyissue_20365():
     assert limit(((x + 1)**(1/x) - E)/x, x, 0) == -E/2
+
+
+def test_sympyissue_20704():
+    assert limit(x*(abs(1/x + y) - abs(y - 1/x))/2, x, 0) == 0
+
+
+def test_sympyissue_21031():
+    assert limit(((1 + x)**(1/x) -
+                  (1 + 2*x)**(1/(2*x)))/asin(x), x, 0) == E/2
+
+
+def test_sympyissue_21038():
+    assert limit(sin(pi*x)/(3*x - 12), x, 4) == pi/3
+
+
+def test_sympyissue_21029():
+    e = (sinh(x) + cosh(x) - 1)/x/4
+    ans0 = Rational(1, 4)
+    ansz = (exp(z) - 1)/z/4
+
+    assert limit(e, x, 0) == ans0
+    assert limit(e, x, z) == ansz
+    assert limit(ansz, z, 0) == ans0
+
+
+def test_sympyissue_20578():
+    e = abs(x)*sin(1/x)
+
+    assert all(_ == 0 for _ in [limit(e, x, 0, '+'),
+                                limit(e, x, 0, '-'),
+                                limit(e, x, 0, 'real')])
+
+
+def test_sympyissue_19453():
+    beta = Symbol('beta', real=True, positive=True)
+    h = Symbol('h', real=True, positive=True)
+    m = Symbol('m', real=True, positive=True)
+    w = Symbol('omega', real=True, positive=True)
+    g = Symbol('g', real=True, positive=True)
+
+    q = 3*h**2*beta*g*exp(h*beta*w/2)
+    p = m**2*w**2
+    s = exp(h*beta*w) - 1
+    z = (-q/(4*p*s) - q/(2*p*s**2) -
+         q*(exp(h*beta*w) + 1)/(2*p*s**3) + exp(h*beta*w/2)/s)
+    e = -diff(log(z), beta)
+
+    assert limit(e - h*w/2, beta, oo) == 0
+    assert limit(e.simplify() - h*w/2, beta, oo) == 0
+
+
+def test_sympyissue_19442():
+    pytest.raises(PoleError, lambda: limit(1/x, x, 0, 'real'))
+
+
+def test_sympyissue_21530():
+    assert limit(sinh(n + 1)/sinh(n), n, oo) == E

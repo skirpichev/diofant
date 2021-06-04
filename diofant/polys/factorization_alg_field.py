@@ -2,13 +2,13 @@ import functools
 import operator
 import random
 
+from ..config import using
 from ..core import Dummy
 from ..domains.algebraicfield import AlgebraicElement
 from ..integrals.heurisch import _symbols
 from ..ntheory import nextprime
 from .modulargcd import (_euclidean_algorithm, _gf_gcdex, _minpoly_from_dense,
                          _trunc)
-from .polyconfig import using
 from .polyerrors import NotInvertible, UnluckyLeadingCoefficient
 from .polyutils import _sort_factors
 from .rings import PolynomialRing
@@ -280,18 +280,18 @@ def _leading_coeffs(f, U, gamma, lcfactors, A, D, denoms, divisors):
         dj = denominators[j]
         ljA = lj.eval(list(zip(lcring.gens, A)))
 
-        lcs[j] = lj.mul_ground(dj)
-        U[j] = U[j].mul_ground(dj).set_ring(zring) * ljA.set_ring(zring)
+        lcs[j] = lj*dj
+        U[j] = (U[j]*dj).set_ring(zring) * ljA.set_ring(zring)
 
         if omega == 1:
-            f = f.mul_ground(dj)
+            f *= dj
         else:
             d = gcd(omega, dj)
-            f = f.mul_ground(dj // d)
+            f *= (dj // d)
 
     if omega != 1:
-        lcs[0] = lcs[0].mul_ground(omega)
-        U[0] = U[0].mul_ground(omega)
+        lcs[0] *= omega
+        U[0] *= omega
 
     return f, lcs, U
 
@@ -451,7 +451,7 @@ def _padic_lift(f, pfactors, lcs, B, minpoly, p):
     prod = functools.reduce(operator.mul, H)
     e = (f - prod) % m
 
-    P = p
+    P = domain(p)
     while e and P < 2*B:
         poly = e // P
 
@@ -464,7 +464,7 @@ def _padic_lift(f, pfactors, lcs, B, minpoly, p):
 
         try:
             solution = solve_lin_sys([_.set_domain(P_domain)
-                                      for _ in poly.coeffs()],
+                                      for _ in poly.values()],
                                      coeffring.clone(domain=P_domain))
         except NotInvertible:
             return
@@ -478,7 +478,7 @@ def _padic_lift(f, pfactors, lcs, B, minpoly, p):
 
         subs = list(solution.items())
 
-        H = [h + _subs_ground(s, subs).mul_ground(P) for h, s in zip(H, S)]
+        H = [h + _subs_ground(s, subs)*P for h, s in zip(H, S)]
         P = P**2
         prod = functools.reduce(operator.mul, H)
         e = (f - prod) % m
@@ -496,6 +496,7 @@ def _div(f, g, minpoly, p):
 
     """
     ring = f.ring
+    domain = ring.domain
 
     rem = f
     deg = g.degree(0)
@@ -510,7 +511,8 @@ def _div(f, g, minpoly, p):
         degrem = rem.degree(0)
         if degrem < deg:
             break
-        quo = (lcinv * rem.eject(*ring.gens[1:]).LC).set_ring(ring).mul_monom((degrem - deg, 0))
+        m = ring.from_terms([((degrem - deg, 0), domain.one)])
+        quo = (lcinv * rem.eject(*ring.gens[1:]).LC).set_ring(ring)*m
         rem = _trunc(rem - g*quo, minpoly, p)
         quotient += quo
 
@@ -563,6 +565,10 @@ def _diophantine_univariate(F, m, minpoly, p):
     over `\mathbb Z_p[z]/(\mu(z))`.
 
     """
+    ring = F[0].ring
+    domain = ring.domain
+    m = ring.from_terms([((m, 0), domain.one)])
+
     if len(F) == 2:
         f, g = F
         result = _extended_euclidean_algorithm(g, f, minpoly, p)
@@ -571,8 +577,8 @@ def _diophantine_univariate(F, m, minpoly, p):
         else:
             s, t, _ = result
 
-        s = s.mul_monom((m, 0))
-        t = t.mul_monom((m, 0))
+        s *= m
+        t *= m
 
         q, s = _div(s, f, minpoly, p)
 
@@ -583,7 +589,6 @@ def _diophantine_univariate(F, m, minpoly, p):
 
         result = [s, t]
     else:
-        ring = F[0].ring
         G = [F[-1]]
 
         for f in reversed(F[1:-1]):
@@ -603,7 +608,7 @@ def _diophantine_univariate(F, m, minpoly, p):
         result, S = [], S + [T[-1]]
 
         for s, f in zip(S, F):
-            r = _div(s.mul_monom((m, 0)), f, minpoly, p)[1]
+            r = _div(s*m, f, minpoly, p)[1]
             s = _trunc(r, minpoly, p)
 
             result.append(s)
@@ -769,9 +774,7 @@ def _hensel_lift(f, H, LC, A, minpoly, p):
                 c = _trunc(s - functools.reduce(operator.mul, H), minpoly, p)
 
     prod = functools.reduce(operator.mul, H)
-    if _trunc(prod, minpoly, p) != f.trunc_ground(p):
-        return
-    else:
+    if _trunc(prod, minpoly, p) == f.trunc_ground(p):
         return H
 
 
@@ -863,7 +866,7 @@ def _factor(f, save):
         gamma_ *= cont**exp
         lcfactors_.append((l_, exp))
 
-    f_ = f_.mul_ground(D_)
+    f_ *= D_
     p = 2
 
     N = 0
@@ -889,7 +892,7 @@ def _factor(f, save):
 
                 for i, ci in zip(range(1, n + 1), C):
                     xi = gens[i]
-                    f_ = f_.compose(xi, x + xi.mul_ground(ci))
+                    f_ = f_.compose(xi, x + xi*ci)
 
                 lc, factors = _factor(_z_to_alpha(f_, ring), save)
                 gens = factors[0].ring.gens
@@ -923,7 +926,7 @@ def _factor(f, save):
                 prod *= lc.LC
             delta = (ground(prod, f_.LC)).numerator
 
-            f_ = f_.mul_ground(delta)
+            f_ *= delta
 
             while not _test_prime(fA, D, minpoly, p, zring.domain):
                 p = nextprime(p)
@@ -966,7 +969,7 @@ def efactor(f, save=True):
     assert ring.domain.is_AlgebraicField
 
     if f.is_ground:
-        return (f.coeff(1), [])
+        return (f[1], [])
 
     n = ring.ngens
 
@@ -976,7 +979,7 @@ def efactor(f, save=True):
     else:
         cont, f = f.eject(*ring.gens[1:]).primitive()
         f = f.inject()
-        if not cont.is_one:
+        if cont != 1:
             lccont, contfactors = efactor(cont)
             lc, factors = efactor(f)
             contfactors = [(g.set_ring(ring), exp) for g, exp in contfactors]

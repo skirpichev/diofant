@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import functools
 from itertools import permutations
 
@@ -57,7 +59,7 @@ def components(f, x):
 
 
 # name -> [] of symbols
-_symbols_cache = {}
+_symbols_cache: dict[str, list[Dummy]] = {}
 
 
 # NB @cacheit is not convenient here
@@ -508,7 +510,7 @@ def heurisch(f, x, rewrite=False, hints=None, mappings=None, retries=3,
         except ValueError:
             raise PolynomialError
 
-        solution = solve_lin_sys(numer.coeffs(), coeff_ring)
+        solution = solve_lin_sys(numer.values(), coeff_ring)
 
         if solution is not None:
             solution = [(coeff_ring.symbols[coeff_ring.index(k)],
@@ -526,7 +528,7 @@ def heurisch(f, x, rewrite=False, hints=None, mappings=None, retries=3,
 
     if solution is not None:
         antideriv = solution.subs(rev_mapping)
-        antideriv = cancel(antideriv).expand(force=True)
+        antideriv = cancel(antideriv).expand()
 
         if antideriv.is_Add:
             antideriv = antideriv.as_independent(x)[1]

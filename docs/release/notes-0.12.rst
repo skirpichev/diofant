@@ -2,14 +2,14 @@
 Diofant 0.12
 ============
 
-Not Released Yet
+18 Jan 2021
 
 New features
 ============
 
 * Support modular exponentiation of :class:`~diofant.polys.rings.PolyElement`'s, see :pull:`1032`.
 * :func:`~diofant.solvers.inequalities.reduce_inequalities` support solving linear inequalities with Fourier-Motzkin elimination algorithm, see :pull:`1063`.
-* Added :class:`~diofant.domains.FiniteRing` for modular integers, see :pull:`876`.
+* Added class ``FiniteRing`` for modular integers, see :pull:`876`.
 * Implemented :meth:`~diofant.polys.fields.FracElement.compose` for functional composition in the fields of fractions, see :pull:`1100`.
 
 Major changes
@@ -18,7 +18,7 @@ Major changes
 * Module :mod:`~diofant.polys.sqfreetools` was ported to use sparse polynomial representation, see :pull:`1009`.
 * Module :mod:`~diofant.polys.factortools` was ported to use sparse polynomial representation, see :pull:`1015`, :pull:`1018`, :pull:`1019`, :pull:`1020` and :pull:`1021`.
 * Module :mod:`~diofant.polys.rootisolation` was ported to use sparse polynomial representation, finally the dense representation is used nowhere, see :pull:`1030`, :pull:`1031` and :pull:`1035`.
-* :func:`~diofant.solvers.inequalities.reduce_inequalities` uses :class:`~diofant.sets.fancysets.ExtendedReals` subsets to solve inequalities, see :pull:`1067`.
+* :func:`~diofant.solvers.inequalities.reduce_inequalities` uses :class:`~diofant.sets.fancysets.ExtendedReals` subsets to solve inequalities, see :pull:`1067` and :pull:`1092`.
 * Added new algorithm for factorization of multivariate polynomials over :class:`~diofant.domains.AlgebraicField`'s (uses Hensel lifting), see :pull:`876`.  Thanks to Katja Sophie Hotz.  Thanks to Kalevi Suominen for help with review.
 
 Compatibility breaks
@@ -34,7 +34,7 @@ Compatibility breaks
 * Drop rich comparison methods from the :class:`~diofant.polys.fields.FracElement`, see :pull:`1101`.
 * :func:`~diofant.polys.polytools.Poly.from_list` support now ascending order of coefficients (i.e., the leading coefficient of univariate polynomial is coming last), see :pull:`1103`.
 * Removed support for 3D geometry in the :mod:`~diofant.geometry` module and ``Point.__getitem__()`` method, see :pull:`1105`.
-* 100% test coverage for :mod:`~diofant.geometry` module, see :pull:`1105`.  Overall test coverage is around 98%.
+* Drop ``coeff()``, ``coeffs()``, ``monoms()``, ``terms()`` and ``deflate()`` methods of :class:`~diofant.polys.rings.PolyElement`, use dictionary indexing, see :pull:`1108`.
 
 Minor changes
 =============
@@ -42,12 +42,13 @@ Minor changes
 * Special case univariate polynomials with :class:`~diofant.polys.univar.UnivarPolynomialRing` and :class:`~diofant.polys.univar.UnivarPolyElement`, see :pull:`1024`.
 * Implement :attr:`~diofant.domains.finitefield.ModularInteger.is_primitive`, see :pull:`1035`.
 * Add :class:`~diofant.sets.fancysets.ExtendedReals` singleton, see :pull:`1067`.
+* 100% test coverage for :mod:`~diofant.geometry` module, see :pull:`1105`.  Overall test coverage is around 98%.
 
 Developer changes
 =================
 
 * Depend on `flake8-sfs <https://github.com/peterjc/flake8-sfs>`_, see :pull:`983`.
-* Depend on `mypy <http://mypy-lang.org/>`_, see :pull:`1022`.
+* Depend on `mypy <http://mypy-lang.org/>`_, see :pull:`1046`.
 * Drop dependency on strategies, see :pull:`1074`.
 
 Issues closed
@@ -86,3 +87,5 @@ These Sympy issues also were addressed:
 * :sympyissue:`20487` LaTeX printing errors for puiseux polynomial
 * :sympyissue:`20610` Solve: GeneratorsNeeded with system involving constant equation
 * :sympyissue:`20617` Complex exponentials are not recognized by domains
+* :sympyissue:`20640` Multivariate polynomial division
+* :sympyissue:`20704` Limit not terminating

@@ -2,8 +2,8 @@
 
 import pytest
 
-from diofant import (QQ, ZZ, CoercionFailed, I, Rational, field, ring, sqrt,
-                     symbols)
+from diofant import (CC, QQ, ZZ, CoercionFailed, I, Rational, field, ring,
+                     sqrt, symbols)
 from diofant.polys.fields import FracElement
 
 
@@ -54,7 +54,7 @@ def test_FractionField_methods():
     assert F.domain_new(2) == ZZ(2)
 
     x = symbols('x')
-    assert F.field_new(x**2 + x) == F.x**2 + F.x
+    assert F(x**2 + x) == F.x**2 + F.x
 
 
 def test_FracElement___hash__():
@@ -129,6 +129,11 @@ def test_FracElement_from_expr():
     F,  X, Y = field((2**x, y), ZZ)
     f = F.convert(2**(2*x) + 1)
     assert f == X**2 + 1
+
+    # issue sympy/sympy#20985
+    F, X = field(x, CC)
+
+    assert F.convert(I/x) == F.convert(CC(0, 1))/X
 
 
 def test_FracElement_to_poly():
