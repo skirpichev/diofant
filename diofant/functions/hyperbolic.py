@@ -1,8 +1,8 @@
-from ...core import Function, I, Integer, Rational, cacheit, nan, oo, pi, zoo
-from ...core.function import ArgumentIndexError, _coeff_isneg
-from ...core.sympify import sympify
-from ..combinatorial.factorials import RisingFactorial, factorial
+from ..core import Function, I, Integer, Rational, cacheit, nan, oo, pi, zoo
+from ..core.function import ArgumentIndexError, _coeff_isneg
+from ..core.sympify import sympify
 from .exponential import exp, log
+from .factorials import RisingFactorial, factorial
 from .miscellaneous import sqrt
 
 
@@ -162,7 +162,7 @@ class sinh(HyperbolicFunction):
         return 2*coth_half/(coth_half**2 - 1)
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -302,7 +302,7 @@ class cosh(HyperbolicFunction):
         return (coth_half + 1)/(coth_half - 1)
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -388,7 +388,7 @@ class tanh(HyperbolicFunction):
     @staticmethod
     @cacheit
     def taylor_term(n, x, *previous_terms):
-        from .. import bernoulli
+        from . import bernoulli
         if n < 0 or n % 2 == 0:
             return Integer(0)
         else:
@@ -434,7 +434,7 @@ class tanh(HyperbolicFunction):
         return 1/coth(arg)
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -513,7 +513,7 @@ class coth(HyperbolicFunction):
     @staticmethod
     @cacheit
     def taylor_term(n, x, *previous_terms):
-        from .. import bernoulli
+        from . import bernoulli
         if n == 0:
             return 1 / sympify(x)
         elif n < 0 or n % 2 == 0:
@@ -559,7 +559,7 @@ class coth(HyperbolicFunction):
         return 1/tanh(arg)
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -664,7 +664,7 @@ class csch(ReciprocalHyperbolicFunction):
     @cacheit
     def taylor_term(n, x, *previous_terms):
         """Returns the next term in the Taylor series expansion."""
-        from .. import bernoulli
+        from . import bernoulli
         if n == 0:
             return 1/sympify(x)
         elif n < 0 or n % 2 == 0:
@@ -712,7 +712,7 @@ class sech(ReciprocalHyperbolicFunction):
     @staticmethod
     @cacheit
     def taylor_term(n, x, *previous_terms):
-        from ..combinatorial.numbers import euler
+        from .numbers import euler
         if n < 0 or n % 2 == 1:
             return Integer(0)
         else:
@@ -790,7 +790,7 @@ class asinh(Function):
                 return (-1)**k * R / F * x**n / n
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -891,7 +891,7 @@ class acosh(Function):
                 return -R / F * I * x**n / n
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -975,7 +975,7 @@ class atanh(Function):
             return x**n / n
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -1045,7 +1045,7 @@ class acoth(Function):
             return x**n / n
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):

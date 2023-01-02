@@ -1,9 +1,9 @@
 from mpmath.libmp.libmpf import prec_to_dps
 
-from ...core import (Add, E, Function, I, Integer, Mul, Pow, expand_log, nan,
-                     oo, pi, zoo)
-from ...core.function import ArgumentIndexError, _coeff_isneg
-from ...ntheory import multiplicity, perfect_power
+from ..core import (Add, E, Function, I, Integer, Mul, Pow, expand_log, nan,
+                    oo, pi, zoo)
+from ..core.function import ArgumentIndexError, _coeff_isneg
+from ..ntheory import multiplicity, perfect_power
 from .miscellaneous import sqrt
 
 
@@ -104,7 +104,7 @@ class exp_polar(Function):
         return self.func(arg)
 
     def _eval_Abs(self):
-        from ...core import expand_mul
+        from ..core import expand_mul
         return sqrt(expand_mul(self * self.conjugate()))
 
     def _eval_evalf(self, prec):
@@ -243,7 +243,7 @@ class log(Function):
                         return -pi*I/2 + cls(-coeff)
 
     def _eval_expand_log(self, deep=True, **hints):
-        from ...concrete import Product, Sum
+        from ..concrete import Product, Sum
         from .complexes import unpolarify
         force = hints.get('force', False)
         if len(self.args) == 2:
@@ -288,7 +288,7 @@ class log(Function):
         return self.func(arg)
 
     def _eval_simplify(self, ratio, measure):
-        from ...simplify import simplify
+        from ..simplify import simplify
         if len(self.args) == 2:
             return simplify(self.func(*self.args), ratio=ratio, measure=measure)
         expr = self.func(simplify(self.args[0], ratio=ratio, measure=measure))
@@ -363,7 +363,7 @@ class log(Function):
         return (self.args[0] - 1).is_zero
 
     def _eval_nseries(self, x, n, logx):
-        from ...calculus import Order
+        from ..calculus import Order
         from .complexes import arg
         from .integers import floor
         if not logx:
@@ -505,8 +505,8 @@ class LambertW(Function):
 
     def _eval_nseries(self, x, n, logx):
         if len(self.args) == 1:
-            from ...calculus import Order
-            from .. import factorial
+            from ..calculus import Order
+            from . import factorial
             x = self.args[0]
             o = Order(x**n, x)
             l = Integer(0)

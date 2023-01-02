@@ -5,11 +5,11 @@ import math
 
 import mpmath
 
-from ...core import (Derivative, Dummy, Expr, Function, I, Integer, Mod, Mul,
-                     Ne, Rational, Tuple, oo, pi, zoo)
-from ...core.function import ArgumentIndexError
-from .. import (acosh, acoth, asin, asinh, atan, atanh, cos, cosh, exp, log,
-                sin, sinh, sqrt)
+from ..core import (Derivative, Dummy, Expr, Function, I, Integer, Mod, Mul,
+                    Ne, Rational, Tuple, oo, pi, zoo)
+from ..core.function import ArgumentIndexError
+from . import (acosh, acoth, asin, asinh, atan, atanh, cos, cosh, exp, log,
+               sin, sinh, sqrt)
 
 
 class TupleArg(Tuple):
@@ -40,7 +40,7 @@ def _prep_tuple(v):
     (7, 8, 9)
 
     """
-    from .. import unpolarify
+    from . import unpolarify
     return TupleArg(*[unpolarify(x) for x in v])
 
 
@@ -184,7 +184,7 @@ class hyper(TupleParametersBase):
 
     @classmethod
     def eval(cls, ap, bq, z):
-        from .. import unpolarify
+        from . import unpolarify
         if len(ap) <= len(bq):
             nz = unpolarify(z)
             if z != nz:
@@ -199,7 +199,7 @@ class hyper(TupleParametersBase):
         return fac*hyper(nap, nbq, self.argument)
 
     def _eval_expand_func(self, **hints):
-        from ...simplify import hyperexpand
+        from ..simplify import hyperexpand
         from .gamma_functions import gamma
         if len(self.ap) == 2 and len(self.bq) == 1 and self.argument == 1:
             a, b = self.ap
@@ -208,8 +208,8 @@ class hyper(TupleParametersBase):
         return hyperexpand(self)
 
     def _eval_rewrite_as_Sum(self, ap, bq, z):
-        from ...concrete import Sum
-        from .. import Piecewise, RisingFactorial, factorial
+        from ..concrete import Sum
+        from . import Piecewise, RisingFactorial, factorial
         n = Dummy('n', integer=True)
         rfap = Tuple(*[RisingFactorial(a, n) for a in ap])
         rfbq = Tuple(*[RisingFactorial(b, n) for b in bq])
@@ -288,8 +288,8 @@ class hyper(TupleParametersBase):
     @property
     def convergence_statement(self):
         """Return a condition on z under which the series converges."""
-        from ...logic import And, Or
-        from .. import re
+        from ..logic import And, Or
+        from . import re
         R = self.radius_of_convergence
         if R == 0:
             return False
@@ -304,7 +304,7 @@ class hyper(TupleParametersBase):
         return Or(c1, c2, c3)
 
     def _eval_simplify(self, ratio, measure):
-        from ...simplify import hyperexpand
+        from ..simplify import hyperexpand
         return hyperexpand(self)
 
     def _eval_evalf(self, prec):
@@ -600,7 +600,7 @@ class meijerg(TupleParametersBase):
             return 2*pi*alpha
 
     def _eval_expand_func(self, **hints):
-        from ...simplify import hyperexpand
+        from ..simplify import hyperexpand
         return hyperexpand(self)
 
     def _eval_evalf(self, prec):
@@ -611,7 +611,7 @@ class meijerg(TupleParametersBase):
         # less than (say) n*pi, we put r=1/n, compute z' = root(z, n)
         # (carefully so as not to loose the branch information), and evaluate
         # G(z'**(1/r)) = G(z'**n) = G(z).
-        from .. import ceiling, exp_polar
+        from . import ceiling, exp_polar
         znum = self.argument.evalf(prec, strict=False)
         if znum.has(exp_polar):
             znum, branch = znum.as_coeff_mul(exp_polar)
@@ -715,7 +715,7 @@ class HyperRep(Function):
 
     @classmethod
     def eval(cls, *args):
-        from .. import unpolarify
+        from . import unpolarify
         newargs = tuple(map(unpolarify, args[:-1])) + args[-1:]
         if args != newargs:
             return cls(*newargs)
@@ -741,7 +741,7 @@ class HyperRep(Function):
         raise NotImplementedError
 
     def _eval_rewrite_as_nonrep(self, *args):
-        from .. import Piecewise
+        from . import Piecewise
         x, n = self.args[-1].extract_branch_factor(allow_half=True)
         minus = False
         newargs = self.args[:-1] + (x,)

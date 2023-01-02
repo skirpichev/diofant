@@ -1,18 +1,18 @@
 from mpmath import besseljzero, mp, workprec
 from mpmath.libmp.libmpf import dps_to_prec
 
-from ...core import (Add, Expr, Function, I, Integer, Pow, Rational, Wild,
-                     cacheit, nan, oo, pi, zoo)
-from ...core.function import ArgumentIndexError
-from ...core.sympify import sympify
-from ...polys.orthopolys import spherical_bessel_fn as fn
-from ..combinatorial.factorials import factorial
-from ..elementary.complexes import Abs, im, re
-from ..elementary.exponential import exp
-from ..elementary.miscellaneous import cbrt, root, sqrt
-from ..elementary.trigonometric import cos, cot, csc, sin
+from ..core import (Add, Expr, Function, I, Integer, Pow, Rational, Wild,
+                    cacheit, nan, oo, pi, zoo)
+from ..core.function import ArgumentIndexError
+from ..core.sympify import sympify
+from ..polys.orthopolys import spherical_bessel_fn as fn
+from .complexes import Abs, im, re
+from .exponential import exp
+from .factorials import factorial
 from .gamma_functions import gamma
 from .hyper import hyper
+from .miscellaneous import cbrt, root, sqrt
+from .trigonometric import cos, cot, csc, sin
 
 
 # TODO
@@ -80,7 +80,7 @@ class BesselBase(Function):
         return self
 
     def _eval_simplify(self, ratio, measure):
-        from ...simplify import besselsimp
+        from ..simplify import besselsimp
         return besselsimp(self)
 
 
@@ -175,7 +175,7 @@ class besselj(BesselBase):
                 return I**(nu)*besseli(nu, newz)
 
         # branch handling:
-        from .. import unpolarify
+        from . import unpolarify
         if nu.is_integer:
             newz = unpolarify(z)
             if newz != z:
@@ -189,7 +189,7 @@ class besselj(BesselBase):
             return besselj(nnu, z)
 
     def _eval_rewrite_as_besseli(self, nu, z):
-        from .. import polar_lift
+        from . import polar_lift
         return exp(I*pi*nu/2)*besseli(nu, polar_lift(-I)*z)
 
     def _eval_rewrite_as_bessely(self, nu, z):
@@ -340,7 +340,7 @@ class besseli(BesselBase):
                 return I**(-nu)*besselj(nu, -newz)
 
         # branch handling:
-        from .. import unpolarify
+        from . import unpolarify
         if nu.is_integer:
             newz = unpolarify(z)
             if newz != z:
@@ -354,7 +354,7 @@ class besseli(BesselBase):
             return besseli(nnu, z)
 
     def _eval_rewrite_as_besselj(self, nu, z):
-        from .. import polar_lift
+        from . import polar_lift
         return exp(-I*pi*nu/2)*besselj(nu, polar_lift(I)*z)
 
     def _eval_rewrite_as_bessely(self, nu, z):
@@ -1069,8 +1069,8 @@ class _airyais(Function):
         return 2*airyai(x)*exp(Rational(2, 3)*x**Rational(3, 2))/sqrt(pi*sqrt(x))
 
     def _eval_aseries(self, n, args0, x, logx):
-        from ...calculus import Order
-        from ...simplify import combsimp
+        from ..calculus import Order
+        from ..simplify import combsimp
         point = args0[0]
 
         if point is oo:
@@ -1098,8 +1098,8 @@ class _airybis(Function):
         return airybi(x)*exp(-Rational(2, 3)*x**Rational(3, 2))/sqrt(pi*sqrt(x))
 
     def _eval_aseries(self, n, args0, x, logx):
-        from ...calculus import Order
-        from ...simplify import combsimp
+        from ..calculus import Order
+        from ..simplify import combsimp
         point = args0[0]
 
         if point is oo:

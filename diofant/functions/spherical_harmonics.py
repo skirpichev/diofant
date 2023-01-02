@@ -1,11 +1,11 @@
-from ...core import Dummy, Function, I, pi
-from ...core.function import ArgumentIndexError
-from ..combinatorial.factorials import factorial
-from ..elementary.complexes import Abs
-from ..elementary.exponential import exp
-from ..elementary.miscellaneous import sqrt
-from ..elementary.trigonometric import cos, cot, sin
+from ..core import Dummy, Function, I, pi
+from ..core.function import ArgumentIndexError
+from .combinatorial.factorials import factorial
+from .complexes import Abs
+from .exponential import exp
+from .miscellaneous import sqrt
 from .polynomials import assoc_legendre
+from .trigonometric import cos, cot, sin
 
 
 _x = Dummy('dummy_for_spherical_harmonics')
@@ -170,7 +170,7 @@ class Ynm(Function):
 
     def _eval_rewrite_as_cos(self, n, m, theta, phi):
         # This method can be expensive due to extensive use of simplification!
-        from ...simplify import simplify, trigsimp
+        from ..simplify import simplify, trigsimp
 
         # TODO: Make sure n \in N
         # TODO: Assert |m| <= n ortherwise we should return 0
@@ -214,7 +214,7 @@ def Ynm_c(n, m, theta, phi):
     * http://functions.wolfram.com/Polynomials/SphericalHarmonicY/
 
     """
-    from .. import conjugate
+    from . import conjugate
     return conjugate(Ynm(n, m, theta, phi))
 
 

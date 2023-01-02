@@ -1,7 +1,7 @@
 import math
 
-from ...core import Function, Integer
-from ...utilities import default_sort_key, has_dups
+from ..core import Function, Integer
+from ..utilities import default_sort_key, has_dups
 
 
 ###############################################################################
@@ -26,7 +26,7 @@ def Eijk(*args, **kwargs):
 
 def eval_levicivita(*args):
     """Evaluate Levi-Civita symbol."""
-    from .. import factorial
+    from . import factorial
     n = len(args)
     return math.prod(
         math.prod(args[j] - args[i] for j in range(i + 1, n))

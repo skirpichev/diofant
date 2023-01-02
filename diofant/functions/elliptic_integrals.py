@@ -1,13 +1,13 @@
 """Elliptic integrals."""
 
-from ...core import Function, I, Integer, Rational, oo, pi, zoo
-from ...core.function import ArgumentIndexError
-from ..elementary.complexes import sign
-from ..elementary.hyperbolic import atanh
-from ..elementary.miscellaneous import sqrt
-from ..elementary.trigonometric import sin, tan
+from ..core import Function, I, Integer, Rational, oo, pi, zoo
+from ..core.function import ArgumentIndexError
+from .complexes import sign
 from .gamma_functions import gamma
 from .hyper import hyper, meijerg
+from .hyperbolic import atanh
+from .miscellaneous import sqrt
+from .trigonometric import sin, tan
 
 
 class elliptic_k(Function):
@@ -71,7 +71,7 @@ class elliptic_k(Function):
             return self.func(m.conjugate())
 
     def _eval_nseries(self, x, n, logx):
-        from ...simplify import hyperexpand
+        from ..simplify import hyperexpand
         return hyperexpand(self.rewrite(hyper)._eval_nseries(x, n=n, logx=logx))
 
     def _eval_rewrite_as_hyper(self, m):
@@ -236,7 +236,7 @@ class elliptic_e(Function):
                 return self.func(m.conjugate())
 
     def _eval_nseries(self, x, n, logx):
-        from ...simplify import hyperexpand
+        from ..simplify import hyperexpand
         if len(self.args) == 1:
             return hyperexpand(self.rewrite(hyper)._eval_nseries(x, n=n, logx=logx))
         return super()._eval_nseries(x, n=n, logx=logx)

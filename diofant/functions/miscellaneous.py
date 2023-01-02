@@ -1,13 +1,13 @@
-from ...core import (Add, Dummy, Equality, Expr, Integer, Lambda, Mul, Pow,
-                     Rational, Tuple, oo, zoo)
-from ...core.compatibility import as_int
-from ...core.function import Application, ArgumentIndexError
-from ...core.logic import fuzzy_and
-from ...core.operations import LatticeOp, ShortCircuitError
-from ...core.rules import Transform
-from ...core.singleton import SingletonWithManagedProperties as Singleton
-from ...core.sympify import sympify
-from ...logic import And, Or
+from ..core import (Add, Dummy, Equality, Expr, Integer, Lambda, Mul, Pow,
+                    Rational, Tuple, oo, zoo)
+from ..core.compatibility import as_int
+from ..core.function import Application, ArgumentIndexError
+from ..core.logic import fuzzy_and
+from ..core.operations import LatticeOp, ShortCircuitError
+from ..core.rules import Transform
+from ..core.singleton import SingletonWithManagedProperties as Singleton
+from ..core.sympify import sympify
+from ..logic import And, Or
 from .integers import floor
 
 
@@ -24,7 +24,7 @@ class IdentityFunction(Lambda, metaclass=Singleton):
     """
 
     def __new__(cls):
-        from ...sets import FiniteSet
+        from ..sets import FiniteSet
         x = Dummy('dummy_for_IdentityFunction')
         # construct "by hand" to avoid infinite loop
         obj = Expr.__new__(cls, Tuple(x), x)
@@ -420,7 +420,7 @@ class MinMaxBase(LatticeOp):
         return fuzzy_and(arg.is_extended_real for arg in self.args)
 
     def _eval_rewrite_as_Piecewise(self, *args):
-        from .. import Heaviside, Piecewise
+        from . import Heaviside, Piecewise
         return self.rewrite(Heaviside).rewrite(Piecewise)
 
     def _eval_rewrite_as_tractable(self, *args, wrt=None, **kwargs):
@@ -528,7 +528,7 @@ class Max(MinMaxBase, Application):
     identity = -oo
 
     def fdiff(self, argindex):
-        from .. import Heaviside
+        from . import Heaviside
         n = len(self.args)
         if 0 < argindex <= n:
             argindex -= 1
@@ -540,7 +540,7 @@ class Max(MinMaxBase, Application):
             raise ArgumentIndexError(self, argindex)
 
     def _eval_rewrite_as_Heaviside(self, *args):
-        from .. import Heaviside
+        from . import Heaviside
         return Add(*[j*Mul(*[Heaviside(j - i) for i in args if i != j])
                      for j in args])
 
@@ -579,7 +579,7 @@ class Min(MinMaxBase, Application):
     identity = oo
 
     def fdiff(self, argindex):
-        from .. import Heaviside
+        from . import Heaviside
         n = len(self.args)
         if 0 < argindex <= n:
             argindex -= 1
@@ -591,6 +591,6 @@ class Min(MinMaxBase, Application):
             raise ArgumentIndexError(self, argindex)
 
     def _eval_rewrite_as_Heaviside(self, *args):
-        from .. import Heaviside
+        from . import Heaviside
         return Add(*[j*Mul(*[Heaviside(i-j) for i in args if i != j])
                      for j in args])

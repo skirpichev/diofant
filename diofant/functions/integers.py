@@ -1,8 +1,8 @@
 from mpmath.libmp.libmpf import prec_to_dps
 
-from ...core import (Add, Function, Ge, Gt, I, Integer, Le, Lt,
-                     PrecisionExhausted)
-from ...logic import false, true
+from ..core import (Add, Function, Ge, Gt, I, Integer, Le, Lt,
+                    PrecisionExhausted)
+from ..logic import false, true
 
 
 ###############################################################################
@@ -53,7 +53,7 @@ class RoundFunction(Function):
                       npart.is_imaginary and spart.is_extended_real):
             npart_int = None
             try:
-                from ...core.evalf import DEFAULT_MAXPREC as TARGET
+                from ..core.evalf import DEFAULT_MAXPREC as TARGET
                 prec = 10
                 r, i = Integer(0), Integer(0)
                 npart_re, npart_im = npart.as_real_imag()

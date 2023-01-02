@@ -1,12 +1,12 @@
-from ...core import (Add, Function, Integer, Rational, Symbol, cacheit,
-                     expand_mul)
-from ...core.function import ArgumentIndexError
-from ...core.logic import fuzzy_and, fuzzy_not
-from ...core.numbers import I, igcdex, nan, oo, pi, zoo
-from ...core.sympify import sympify
-from ...utilities import numbered_symbols
-from ..combinatorial.factorials import RisingFactorial, factorial
+from ..core import (Add, Function, Integer, Rational, Symbol, cacheit,
+                    expand_mul)
+from ..core.function import ArgumentIndexError
+from ..core.logic import fuzzy_and, fuzzy_not
+from ..core.numbers import I, igcdex, nan, oo, pi, zoo
+from ..core.sympify import sympify
+from ..utilities import numbered_symbols
 from .exponential import exp, log
+from .factorials import RisingFactorial, factorial
 from .hyperbolic import acoth, asinh, atanh, cosh, coth, csch, sech, sinh, tanh
 from .miscellaneous import sqrt
 
@@ -320,7 +320,7 @@ class sin(TrigonometricFunction):
         return sin(re)*cosh(im), cos(re)*sinh(im)
 
     def _eval_expand_trig(self, **hints):
-        from .. import chebyshevt, chebyshevu
+        from . import chebyshevt, chebyshevu
         arg = self.args[0]
         x = None
         if arg.is_Add:  # TODO, implement more if deep stuff here
@@ -349,7 +349,7 @@ class sin(TrigonometricFunction):
         return sin(arg)
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -446,7 +446,7 @@ class cos(TrigonometricFunction):
 
     @classmethod
     def eval(cls, arg):
-        from .. import chebyshevt
+        from . import chebyshevt
         if arg.is_Number:
             if arg == 0:
                 return Integer(1)
@@ -600,7 +600,7 @@ class cos(TrigonometricFunction):
         return (cot_half - 1)/(cot_half + 1)
 
     def _eval_rewrite_as_sqrt(self, arg):
-        from .. import chebyshevt
+        from . import chebyshevt
 
         def migcdex(x):
             # recursive calcuation of gcd and linear combination
@@ -617,7 +617,7 @@ class cos(TrigonometricFunction):
             return tuple([u] + [v*i for i in g[0:-1]] + [h])
 
         def ipartfrac(r, factors=None):
-            from ...ntheory import factorint
+            from ..ntheory import factorint
             assert isinstance(r, Rational)
             n = r.denominator
             assert 2 < r.denominator*r.denominator
@@ -700,7 +700,7 @@ class cos(TrigonometricFunction):
         return cos(re)*cosh(im), -sin(re)*sinh(im)
 
     def _eval_expand_trig(self, **hints):
-        from .. import chebyshevt
+        from . import chebyshevt
         arg = self.args[0]
         x = None
         if arg.is_Add:  # TODO: Do this more efficiently for more than two terms
@@ -721,7 +721,7 @@ class cos(TrigonometricFunction):
         return cos(arg)
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -903,7 +903,7 @@ class tan(TrigonometricFunction):
     @staticmethod
     @cacheit
     def taylor_term(n, x, *previous_terms):
-        from .. import bernoulli
+        from . import bernoulli
         if n < 0 or n % 2 == 0:
             return Integer(0)
         else:
@@ -942,7 +942,7 @@ class tan(TrigonometricFunction):
         from .complexes import im, re
         arg = self.args[0]
         if arg.is_Add:
-            from ...polys import symmetric_poly
+            from ..polys import symmetric_poly
             n = len(arg.args)
             TX = []
             for x in arg.args:
@@ -987,7 +987,7 @@ class tan(TrigonometricFunction):
             return y
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -1211,7 +1211,7 @@ class sec(ReciprocalTrigonometricFunction):
     def taylor_term(n, x, *previous_terms):
         # Reference Formula:
         # http://functions.wolfram.com/ElementaryFunctions/Sec/06/01/02/01/
-        from ..combinatorial.numbers import euler
+        from .numbers import euler
         if n < 0 or n % 2 == 1:
             return Integer(0)
         else:
@@ -1285,7 +1285,7 @@ class csc(ReciprocalTrigonometricFunction):
     @staticmethod
     @cacheit
     def taylor_term(n, x, *previous_terms):
-        from .. import bernoulli
+        from . import bernoulli
         if n == 0:
             return 1/sympify(x)
         elif n < 0 or n % 2 == 0:
@@ -1378,7 +1378,7 @@ class cot(ReciprocalTrigonometricFunction):
         from .complexes import im, re
         arg = self.args[0]
         if arg.is_Add:
-            from ...polys import symmetric_poly
+            from ..polys import symmetric_poly
             n = len(arg.args)
             CX = []
             for x in arg.args:
@@ -1401,7 +1401,7 @@ class cot(ReciprocalTrigonometricFunction):
         return cot(arg)
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -1539,7 +1539,7 @@ class asin(InverseTrigonometricFunction):
                 return R / F * x**n / n
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -1700,7 +1700,7 @@ class acos(InverseTrigonometricFunction):
                 return -R / F * x**n / n
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -1865,7 +1865,7 @@ class atan(InverseTrigonometricFunction):
             return (-1)**((n - 1)//2) * x**n / n
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -2012,7 +2012,7 @@ class acot(InverseTrigonometricFunction):
             return (-1)**((n + 1)//2) * x**n / n
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -2152,7 +2152,7 @@ class asec(InverseTrigonometricFunction):
         return sec
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
         if Order(1, x).contains(arg):
             return log(arg)
@@ -2245,7 +2245,7 @@ class acsc(InverseTrigonometricFunction):
         return csc
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
         if Order(1, x).contains(arg):
             return log(arg)
@@ -2374,7 +2374,7 @@ class atan2(InverseTrigonometricFunction):
 
     @classmethod
     def eval(cls, y, x):
-        from .. import Heaviside
+        from . import Heaviside
         from .complexes import im, re
         if x == -oo:
             if y.is_zero:

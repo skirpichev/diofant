@@ -16,14 +16,14 @@ import typing
 from mpmath import bernfrac, mp, workprec
 from mpmath.libmp import ifib as _ifib
 
-from ...core import (Add, Dummy, E, Expr, Function, GoldenRatio, Integer,
-                     Rational, cacheit, expand_mul, nan, oo, pi)
-from ...core.compatibility import as_int
-from ...utilities.memoization import recurrence_memo
-from ..elementary.exponential import log
-from ..elementary.integers import floor
-from ..elementary.trigonometric import cos, cot, sin
+from ..core import (Add, Dummy, E, Expr, Function, GoldenRatio, Integer,
+                    Rational, cacheit, expand_mul, nan, oo, pi)
+from ..core.compatibility import as_int
+from ..utilities.memoization import recurrence_memo
+from .exponential import log
 from .factorials import binomial, factorial
+from .integers import floor
+from .trigonometric import cos, cot, sin
 
 
 def _product(a, b):
@@ -113,7 +113,7 @@ class fibonacci(Function):
                 return cls._fibpoly(n).subs({_sym: sym})
 
     def _eval_rewrite_as_sqrt(self, n, sym=None, **kwargs):
-        from .. import sqrt
+        from . import sqrt
         if sym is None:
             return (GoldenRatio**n - cos(pi*n)/GoldenRatio**n)/sqrt(5)
     _eval_rewrite_as_tractable = _eval_rewrite_as_sqrt
@@ -450,7 +450,7 @@ class bell(Function):
                 return r
 
     def _eval_rewrite_as_Sum(self, n, k_sym=None, symbols=None):
-        from ...concrete import Sum
+        from ..concrete import Sum
         if (k_sym is not None) or (symbols is not None):
             return self
 
@@ -592,7 +592,7 @@ class harmonic(Function):
 
     @classmethod
     def eval(cls, n, m=None):
-        from .. import zeta
+        from . import zeta
         if m == 1:
             return cls(n)
         if m is None:
@@ -620,26 +620,26 @@ class harmonic(Function):
             return cls._functions[m](int(n))
 
     def _eval_rewrite_as_polygamma(self, n, m=1):
-        from .. import polygamma
+        from . import polygamma
         return (-1)**m/factorial(m - 1) * (polygamma(m - 1, 1) - polygamma(m - 1, n + 1))
 
     def _eval_rewrite_as_digamma(self, n, m=1):
-        from .. import polygamma
+        from . import polygamma
         return self.rewrite(polygamma)
 
     def _eval_rewrite_as_trigamma(self, n, m=1):
-        from .. import polygamma
+        from . import polygamma
         return self.rewrite(polygamma)
 
     def _eval_rewrite_as_Sum(self, n, m=None):
-        from ...concrete import Sum
+        from ..concrete import Sum
         k = Dummy('k')
         if m is None:
             m = Integer(1)
         return Sum(k**(-m), (k, 1, n))
 
     def _eval_expand_func(self, **hints):
-        from ...concrete import Sum
+        from ..concrete import Sum
         n = self.args[0]
         m = self.args[1] if len(self.args) == 2 else 1
 
@@ -672,11 +672,11 @@ class harmonic(Function):
         return self
 
     def _eval_rewrite_as_tractable(self, n, m=1, **kwargs):
-        from .. import polygamma
+        from . import polygamma
         return self.rewrite(polygamma).rewrite('tractable')
 
     def _eval_evalf(self, prec):
-        from .. import polygamma
+        from . import polygamma
         if all(i.is_number for i in self.args):
             return self.rewrite(polygamma)._eval_evalf(prec)
 
@@ -844,7 +844,7 @@ class catalan(Function):
 
     @classmethod
     def eval(cls, n):
-        from .. import gamma
+        from . import gamma
         if (n.is_Integer and n.is_nonnegative) or \
            (n.is_noninteger and n.is_negative):
             return 4**n*gamma(n + Rational(1, 2))/(gamma(Rational(1, 2))*gamma(n + 2))
@@ -856,7 +856,7 @@ class catalan(Function):
                 return -Rational(1, 2)
 
     def fdiff(self, argindex=1):
-        from .. import log, polygamma
+        from . import log, polygamma
         n = self.args[0]
         return catalan(n)*(polygamma(0, n + Rational(1, 2)) - polygamma(0, n + 2) + log(4))
 
@@ -867,24 +867,24 @@ class catalan(Function):
         return factorial(2*n) / (factorial(n+1) * factorial(n))
 
     def _eval_rewrite_as_gamma(self, n):
-        from .. import gamma
+        from . import gamma
 
         # The gamma function allows to generalize Catalan numbers to complex n
         return 4**n*gamma(n + Rational(1, 2))/(gamma(Rational(1, 2))*gamma(n + 2))
 
     def _eval_rewrite_as_hyper(self, n):
-        from .. import hyper
+        from . import hyper
         return hyper([1 - n, -n], [2], 1)
 
     def _eval_rewrite_as_Product(self, n):
-        from ...concrete import Product
+        from ..concrete import Product
         if not (n.is_integer and n.is_nonnegative):
             return self
         k = Dummy('k', integer=True, positive=True)
         return Product((n + k) / k, (k, 2, n))
 
     def _eval_evalf(self, prec):
-        from .. import gamma
+        from . import gamma
         if self.args[0].is_number:
             return self.rewrite(gamma)._eval_evalf(prec)
 
@@ -1499,7 +1499,7 @@ def nT(n, k=None):
     diofant.utilities.iterables.multiset_partitions
 
     """
-    from ...utilities.enumerative import MultisetPartitionTraverser
+    from ..utilities.enumerative import MultisetPartitionTraverser
 
     if isinstance(n, numbers.Integral):
         # assert n >= 0

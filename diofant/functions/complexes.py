@@ -1,9 +1,9 @@
-from ...core import (Add, Derivative, Dummy, Eq, Expr, Function, I, Integer,
-                     Mul, Rational, Symbol, Tuple, factor_terms, nan, oo, pi,
-                     zoo)
-from ...core.function import AppliedUndef, ArgumentIndexError
-from ...core.sympify import sympify
-from ...logic.boolalg import BooleanAtom
+from ..core import (Add, Derivative, Dummy, Eq, Expr, Function, I, Integer,
+                    Mul, Rational, Symbol, Tuple, factor_terms, nan, oo, pi,
+                    zoo)
+from ..core.function import AppliedUndef, ArgumentIndexError
+from ..core.sympify import sympify
+from ..logic.boolalg import BooleanAtom
 from .exponential import exp, exp_polar, log
 from .miscellaneous import sqrt
 from .piecewise import ExprCondPair, Piecewise
@@ -285,11 +285,11 @@ class sign(Function):
 
     def _eval_derivative(self, s):
         if self.args[0].is_extended_real:
-            from ..special.delta_functions import DiracDelta
+            from .delta_functions import DiracDelta
             return 2 * Derivative(self.args[0], s, evaluate=True) \
                 * DiracDelta(self.args[0])
         elif self.args[0].is_imaginary:
-            from ..special.delta_functions import DiracDelta
+            from .delta_functions import DiracDelta
             return 2 * Derivative(self.args[0], s, evaluate=True) \
                 * DiracDelta(-I * self.args[0])
 
@@ -324,7 +324,7 @@ class sign(Function):
             return Piecewise((1, arg > 0), (-1, arg < 0), (0, True))
 
     def _eval_rewrite_as_Heaviside(self, arg):
-        from .. import Heaviside
+        from . import Heaviside
         if arg.is_extended_real:
             return Heaviside(arg)*2-1
 
@@ -400,7 +400,7 @@ class Abs(Function):
 
     @classmethod
     def eval(cls, arg):
-        from ...simplify import signsimp
+        from ..simplify import signsimp
         if hasattr(arg, '_eval_Abs'):
             obj = arg._eval_Abs()
             if obj is not None:
@@ -451,12 +451,12 @@ class Abs(Function):
                 return oo
             if arg.is_extended_real is not True and arg.is_imaginary is None:
                 if all(a.is_extended_real or a.is_imaginary or (I*a).is_extended_real for a in arg.args):
-                    from ...core import expand_mul
+                    from ..core import expand_mul
                     return sqrt(expand_mul(arg*arg.conjugate()))
         if arg is zoo:
             return oo
         if arg.is_extended_real is not True and arg.is_imaginary is False:
-            from ...core import expand_mul
+            from ..core import expand_mul
             return sqrt(expand_mul(arg*arg.conjugate()))
 
     def _eval_is_integer(self):
@@ -515,7 +515,7 @@ class Abs(Function):
     def _eval_rewrite_as_Heaviside(self, arg):
         # Note this only holds for real arg (since Heaviside is not defined
         # for complex arguments).
-        from .. import Heaviside
+        from . import Heaviside
         if arg.is_extended_real:
             return arg*(Heaviside(arg) - Heaviside(-arg))
 
@@ -715,7 +715,7 @@ class polar_lift(Function):
 
     @classmethod
     def eval(cls, arg):
-        from .. import arg as argument
+        from . import arg as argument
         from .exponential import exp_polar
         if arg.is_number and (arg.is_finite or arg.is_extended_real):
             ar = argument(arg)
@@ -927,7 +927,7 @@ class principal_branch(Function):
 
 
 def _polarify(eq, lift, pause=False):
-    from ...integrals import Integral
+    from ..integrals import Integral
 
     if isinstance(eq, Tuple):
         return eq.func(*[_polarify(arg, lift, pause=False) for arg in eq.args])

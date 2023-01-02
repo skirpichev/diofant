@@ -1,4 +1,4 @@
-from ...core.function import ArgumentIndexError, Function
+from ..core.function import ArgumentIndexError, Function
 from .gamma_functions import digamma, gamma
 
 

@@ -1,14 +1,14 @@
 from mpmath import mp, workprec
 
-from ...core import (Add, Dummy, EulerGamma, Expr, Function, I, Integer, Pow,
-                     Rational, oo, pi, zoo)
-from ...core.function import ArgumentIndexError
-from ..combinatorial.factorials import RisingFactorial, factorial, rf
-from ..combinatorial.numbers import bernoulli, harmonic
-from ..elementary.exponential import exp, log
-from ..elementary.integers import ceiling, floor
-from ..elementary.miscellaneous import sqrt
+from ..core import (Add, Dummy, EulerGamma, Expr, Function, I, Integer, Pow,
+                    Rational, oo, pi, zoo)
+from ..core.function import ArgumentIndexError
 from .error_functions import erf
+from .exponential import exp, log
+from .factorials import RisingFactorial, factorial, rf
+from .integers import ceiling, floor
+from .miscellaneous import sqrt
+from .numbers import bernoulli, harmonic
 from .zeta_functions import zeta
 
 
@@ -242,7 +242,7 @@ class lowergamma(Function):
     """
 
     def fdiff(self, argindex=2):
-        from .. import unpolarify
+        from . import unpolarify
         from .hyper import meijerg
         if argindex == 2:
             a, z = self.args
@@ -272,7 +272,7 @@ class lowergamma(Function):
         #    where lowergamma_unbranched(s, x) is an entire function (in fact
         #    of both s and x), i.e.
         #    lowergamma(s, exp(2*I*pi*n)*x) = exp(2*pi*I*n*a)*lowergamma(a, x)
-        from .. import unpolarify
+        from . import unpolarify
         nx, n = x.extract_branch_factor()
         if a.is_integer and a.is_positive:
             nx = unpolarify(x)
@@ -391,7 +391,7 @@ class uppergamma(Function):
     """
 
     def fdiff(self, argindex=2):
-        from .. import unpolarify
+        from . import unpolarify
         from .hyper import meijerg
         if argindex == 2:
             a, z = self.args
@@ -411,7 +411,7 @@ class uppergamma(Function):
 
     @classmethod
     def eval(cls, a, z):
-        from .. import unpolarify
+        from . import unpolarify
         from .error_functions import expint
         if z.is_Number:
             if z is oo:
@@ -568,7 +568,7 @@ class polygamma(Function):
                 return True
 
     def _eval_aseries(self, n, args0, x, logx):
-        from ...calculus import Order
+        from ..calculus import Order
         if args0[1] != oo or not \
                 (self.args[0].is_Integer and self.args[0].is_nonnegative):
             return super()._eval_aseries(n, args0, x, logx)
@@ -610,7 +610,7 @@ class polygamma(Function):
 
     @classmethod
     def eval(cls, n, z):
-        from .. import unpolarify
+        from . import unpolarify
 
         if n.is_integer:
             if n.is_nonnegative:
@@ -707,7 +707,7 @@ class polygamma(Function):
                 return (-1)**(n+1) * factorial(n) * (zeta(n+1) - harmonic(z-1, n+1))
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         n, z = (a.as_leading_term(x) for a in self.args)
         o = Order(z, x)
         if n == 0 and o.contains(1/x):
@@ -837,7 +837,7 @@ class loggamma(Function):
             return zoo
 
     def _eval_expand_func(self, **hints):
-        from ...concrete import Sum
+        from ..concrete import Sum
         z = self.args[0]
 
         if z.is_Rational:
@@ -865,7 +865,7 @@ class loggamma(Function):
         return super()._eval_nseries(x, n, logx)
 
     def _eval_aseries(self, n, args0, x, logx):
-        from ...calculus import Order
+        from ..calculus import Order
         if args0[0] != oo:
             return super()._eval_aseries(n, args0, x, logx)
         z = self.args[0]

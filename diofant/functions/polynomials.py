@@ -6,18 +6,18 @@ combinatorial polynomials.
 
 """
 
-from ...core import Dummy, Function, Integer, Rational, oo, pi, zoo
-from ...core.function import ArgumentIndexError
-from ...polys.orthopolys import (chebyshevt_poly, chebyshevu_poly,
-                                 gegenbauer_poly, hermite_poly, jacobi_poly,
-                                 laguerre_poly, legendre_poly)
-from ..combinatorial.factorials import RisingFactorial, binomial, factorial
-from ..elementary.complexes import re
-from ..elementary.exponential import exp
-from ..elementary.miscellaneous import sqrt
-from ..elementary.trigonometric import cos
+from ..core import Dummy, Function, Integer, Rational, oo, pi, zoo
+from ..core.function import ArgumentIndexError
+from ..polys.orthopolys import (chebyshevt_poly, chebyshevu_poly,
+                                gegenbauer_poly, hermite_poly, jacobi_poly,
+                                laguerre_poly, legendre_poly)
+from .complexes import re
+from .exponential import exp
+from .factorials import RisingFactorial, binomial, factorial
 from .gamma_functions import gamma
 from .hyper import hyper
+from .miscellaneous import sqrt
+from .trigonometric import cos
 
 
 _x = Dummy('dummy_for_special_polynomials')
@@ -151,7 +151,7 @@ class jacobi(OrthogonalPolynomial):
             return jacobi_poly(n, a, b, x)
 
     def fdiff(self, argindex=4):
-        from ...concrete import Sum
+        from ..concrete import Sum
         if argindex == 1:
             # Diff wrt n
             raise ArgumentIndexError(self, argindex)
@@ -348,7 +348,7 @@ class gegenbauer(OrthogonalPolynomial):
             return gegenbauer_poly(n, a, x)
 
     def fdiff(self, argindex=3):
-        from ...concrete import Sum
+        from ..concrete import Sum
         if argindex == 1:
             # Diff wrt n
             raise ArgumentIndexError(self, argindex)
@@ -1097,7 +1097,7 @@ class assoc_laguerre(OrthogonalPolynomial):
             return cls._eval_at_order(n, x, alpha)
 
     def fdiff(self, argindex=3):
-        from ...concrete import Sum
+        from ..concrete import Sum
         if argindex == 2:
             # Diff wrt alpha
             n, alpha, x = self.args

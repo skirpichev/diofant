@@ -1,10 +1,10 @@
 """Riemann zeta and related function."""
 
-from ...core import (Add, Dummy, Function, I, Integer, Rational, expand_mul,
-                     oo, pi, zoo)
-from ...core.function import ArgumentIndexError
-from ..combinatorial.numbers import bernoulli, factorial, harmonic
-from ..elementary.exponential import exp, exp_polar, log
+from ..core import (Add, Dummy, Function, I, Integer, Rational, expand_mul, oo,
+                    pi, zoo)
+from ..core.function import ArgumentIndexError
+from .exponential import exp, exp_polar, log
+from .numbers import bernoulli, factorial, harmonic
 
 
 ###############################################################################
@@ -114,7 +114,7 @@ class lerchphi(Function):
     """
 
     def _eval_expand_func(self, **hints):
-        from .. import floor, unpolarify
+        from . import floor, unpolarify
         z, s, a = self.args
         if z == 1:
             return zeta(s, a)
@@ -270,7 +270,7 @@ class polylog(Function):
 
     @classmethod
     def eval(cls, s, z):
-        from .. import unpolarify
+        from . import unpolarify
         if z == 1:
             return zeta(s)
         elif z == -1:
@@ -471,7 +471,7 @@ class _zetas(Function):
         return zeta(log(s))
 
     def _eval_aseries(self, n, args0, x, logx):
-        from ...calculus import Order
+        from ..calculus import Order
         point = args0[0]
 
         # Expansion at oo

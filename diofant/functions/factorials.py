@@ -1,15 +1,15 @@
 import functools
 import math
 
-from ...core import Dummy, E, Function, Integer, cacheit, oo, zoo
-from ...core.function import ArgumentIndexError
+from ..core import Dummy, E, Function, Integer, cacheit, oo, zoo
+from ..core.function import ArgumentIndexError
 
 
 class CombinatorialFunction(Function):
     """Base class for combinatorial functions."""
 
     def _eval_simplify(self, ratio, measure):
-        from ...simplify import combsimp
+        from ..simplify import combsimp
         expr = combsimp(self)
         if measure(expr) <= ratio*measure(self):
             return expr
@@ -71,7 +71,7 @@ class factorial(CombinatorialFunction):
     """
 
     def fdiff(self, argindex=1):
-        from .. import gamma, polygamma
+        from . import gamma, polygamma
         if argindex == 1:
             return gamma(self.args[0] + 1)*polygamma(0, self.args[0] + 1)
         else:
@@ -89,15 +89,15 @@ class factorial(CombinatorialFunction):
                     return Integer(math.factorial(n))
 
     def _eval_rewrite_as_gamma(self, n):
-        from .. import gamma
+        from . import gamma
         return gamma(n + 1)
 
     def _eval_rewrite_as_tractable(self, n, **kwargs):
-        from .. import exp, loggamma
+        from . import exp, loggamma
         return exp(loggamma(n + 1))
 
     def _eval_rewrite_as_Product(self, n):
-        from ...concrete import Product
+        from ..concrete import Product
         if n.is_nonnegative and n.is_integer:
             i = Dummy('i', integer=True)
             return Product(i, (i, 1, n))
@@ -188,7 +188,7 @@ class subfactorial(CombinatorialFunction):
     _eval_is_nonnegative = _eval_is_integer
 
     def _eval_rewrite_as_uppergamma(self, n):
-        from .. import uppergamma
+        from . import uppergamma
         return uppergamma(n + 1, -1)/E
 
     def _eval_is_odd(self):
@@ -347,7 +347,7 @@ class RisingFactorial(CombinatorialFunction):
                         return 1/functools.reduce(lambda r, i: r*(x - i), range(1, abs(int(k)) + 1), 1)
 
     def _eval_rewrite_as_gamma(self, x, k):
-        from .. import gamma
+        from . import gamma
         return gamma(x + k) / gamma(x)
 
     def _eval_rewrite_as_tractable(self, x, k, **kwargs):
@@ -414,7 +414,7 @@ class FallingFactorial(CombinatorialFunction):
                         return 1/functools.reduce(lambda r, i: r*(x + i), range(1, abs(int(k)) + 1), 1)
 
     def _eval_rewrite_as_gamma(self, x, k):
-        from .. import gamma
+        from . import gamma
         return (-1)**k * gamma(-x + k) / gamma(-x)
 
     def _eval_is_integer(self):
@@ -499,7 +499,7 @@ class binomial(CombinatorialFunction):
     """
 
     def fdiff(self, argindex=1):
-        from .. import polygamma
+        from . import polygamma
         if argindex == 1:
             # http://functions.wolfram.com/GammaBetaErf/Binomial/20/01/01/
             n, k = self.args
@@ -558,7 +558,7 @@ class binomial(CombinatorialFunction):
         return factorial(n)/(factorial(k)*factorial(n - k))
 
     def _eval_rewrite_as_gamma(self, n, k):
-        from .. import gamma
+        from . import gamma
         return gamma(n + 1)/(gamma(k + 1)*gamma(n - k + 1))
 
     def _eval_rewrite_as_tractable(self, n, k, **kwargs):

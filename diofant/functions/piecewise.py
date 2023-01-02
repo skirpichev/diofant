@@ -1,10 +1,10 @@
-from ...core import (Basic, Dummy, Equality, Expr, Function, Integer, Tuple,
-                     diff, nan, oo)
-from ...core.relational import Relational
-from ...logic import And, Not, Or, false, to_cnf, true
-from ...logic.boolalg import Boolean
-from ...sets import ExtendedReals
-from ...utilities import default_sort_key
+from ..core import (Basic, Dummy, Equality, Expr, Function, Integer, Tuple,
+                    diff, nan, oo)
+from ..core.relational import Relational
+from ..logic import And, Not, Or, false, to_cnf, true
+from ..logic.boolalg import Boolean
+from ..sets import ExtendedReals
+from ..utilities import default_sort_key
 from .miscellaneous import Max, Min
 
 
@@ -168,7 +168,7 @@ class Piecewise(Function):
         return self.func(*[(e.evalf(prec), c) for e, c in self.args])
 
     def _eval_integral(self, x):
-        from ...integrals import integrate
+        from ..integrals import integrate
         return self.func(*[(integrate(e, x), c) for e, c in self.args])
 
     def _eval_interval(self, x, a, b):
@@ -276,7 +276,7 @@ class Piecewise(Function):
         this condition.
 
         """
-        from ...solvers.inequalities import solve_univariate_inequality
+        from ..solvers.inequalities import solve_univariate_inequality
         default = None
         int_expr = []
         expr_cond = []

@@ -2,18 +2,18 @@
 of incomplete gamma functions. It should probably be renamed.
 """
 
-from ...core import (Add, EulerGamma, Function, I, Integer, Pow, Rational,
-                     cacheit, expand_mul, oo, pi, zoo)
-from ...core.function import ArgumentIndexError
-from ...core.sympify import sympify
-from ..combinatorial.factorials import factorial
-from ..elementary.complexes import polar_lift
-from ..elementary.exponential import exp, log
-from ..elementary.hyperbolic import cosh, sinh
-from ..elementary.integers import floor
-from ..elementary.miscellaneous import root, sqrt
-from ..elementary.trigonometric import cos, sin
+from ..core import (Add, EulerGamma, Function, I, Integer, Pow, Rational,
+                    cacheit, expand_mul, oo, pi, zoo)
+from ..core.function import ArgumentIndexError
+from ..core.sympify import sympify
+from .complexes import polar_lift
+from .exponential import exp, log
+from .factorials import factorial
 from .hyper import hyper, meijerg
+from .hyperbolic import cosh, sinh
+from .integers import floor
+from .miscellaneous import root, sqrt
+from .trigonometric import cos, sin
 
 
 # TODO series expansions
@@ -184,7 +184,7 @@ class erf(Function):
         return -I*erfi(I*z)
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -372,7 +372,7 @@ class erfc(Function):
         return 1 - sqrt(z**2)/z + z*expint(Rational(1, 2), z**2)/sqrt(pi)
 
     def _eval_as_leading_term(self, x):
-        from ...calculus import Order
+        from ..calculus import Order
         arg = self.args[0].as_leading_term(x)
 
         if x in arg.free_symbols and Order(1, x).contains(arg):
@@ -1037,7 +1037,7 @@ class Ei(Function):
             return Ei(nz) + 2*I*pi*n
 
     def fdiff(self, argindex=1):
-        from .. import unpolarify
+        from . import unpolarify
         arg = unpolarify(self.args[0])
         if argindex == 1:
             return exp(arg)/arg
@@ -1183,7 +1183,7 @@ class expint(Function):
 
     @classmethod
     def eval(cls, nu, z):
-        from .. import exp, factorial, gamma, unpolarify, uppergamma
+        from . import exp, factorial, gamma, unpolarify, uppergamma
         nu2 = unpolarify(nu)
         if nu != nu2:
             return expint(nu2, z)
@@ -1217,7 +1217,7 @@ class expint(Function):
         return z**(nu - 1)*uppergamma(1 - nu, z)
 
     def _eval_rewrite_as_Ei(self, nu, z):
-        from .. import exp, exp_polar, factorial, unpolarify
+        from . import exp, exp_polar, factorial, unpolarify
         if nu == 1:
             return -Ei(z*exp_polar(-I*pi)) - I*pi
         elif nu.is_Integer and nu > 1:
@@ -1526,7 +1526,7 @@ class TrigonometricIntegral(Function):
             return 2*pi*I*n*cls._trigfunc(0) + cls(nz)
 
     def fdiff(self, argindex=1):
-        from .. import unpolarify
+        from . import unpolarify
         arg = unpolarify(self.args[0])
         if argindex == 1:
             return self._trigfunc(arg)/arg
@@ -1798,7 +1798,7 @@ class Shi(TrigonometricIntegral):
         return I*Si(z)*sign
 
     def _eval_rewrite_as_expint(self, z):
-        from .. import exp_polar
+        from . import exp_polar
 
         # XXX should we polarify z?
         return (E1(z) - E1(exp_polar(I*pi)*z))/2 - I*pi/2
@@ -1889,7 +1889,7 @@ class Chi(TrigonometricIntegral):
         return Ci(z) + I*pi/2*sign
 
     def _eval_rewrite_as_expint(self, z):
-        from .. import exp_polar
+        from . import exp_polar
         return -I*pi/2 - (E1(z) + E1(exp_polar(I*pi)*z))/2
 
     def _latex(self, printer, exp=None):
@@ -2090,7 +2090,7 @@ class fresnels(FresnelIntegral):
                 * meijerg([], [1], [Rational(3, 4)], [Rational(1, 4), 0], -pi**2*z**4/16))
 
     def _eval_aseries(self, n, args0, x, logx):
-        from ...calculus import Order
+        from ..calculus import Order
         point = args0[0]
 
         # Expansion at oo
@@ -2218,7 +2218,7 @@ class fresnelc(FresnelIntegral):
                 * meijerg([], [1], [Rational(1, 4)], [Rational(3, 4), 0], -pi**2*z**4/16))
 
     def _eval_aseries(self, n, args0, x, logx):
-        from ...calculus import Order
+        from ..calculus import Order
         point = args0[0]
 
         # Expansion at oo
@@ -2260,7 +2260,7 @@ class _erfs(Function):
             return Integer(1)
 
     def _eval_aseries(self, n, args0, x, logx):
-        from ...calculus import Order
+        from ..calculus import Order
         point = args0[0]
 
         # Expansion at oo
@@ -2297,7 +2297,7 @@ class _eis(Function):
     """
 
     def _eval_aseries(self, n, args0, x, logx):
-        from ...calculus import Order
+        from ..calculus import Order
         if args0[0] != oo:
             return super()._eval_aseries(n, args0, x, logx)
 

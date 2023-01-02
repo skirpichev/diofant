@@ -5,44 +5,41 @@ Elementary - hyperbolic, trigonometric, exponential, floor and ceiling, sqrt...
 Special - gamma, zeta,spherical harmonics...
 """
 
-from .combinatorial.factorials import (FallingFactorial, RisingFactorial,
-                                       binomial, factorial, factorial2, ff, rf,
-                                       subfactorial)
-from .combinatorial.numbers import (bell, bernoulli, catalan, euler, fibonacci,
-                                    genocchi, harmonic, lucas)
-from .elementary.complexes import (Abs, adjoint, arg, conjugate, im,
-                                   periodic_argument, polar_lift, polarify,
-                                   principal_branch, re, sign, transpose,
-                                   unbranched_argument, unpolarify)
-from .elementary.exponential import LambertW, exp, exp_polar, log
-from .elementary.hyperbolic import (acosh, acoth, asinh, atanh, cosh, coth,
-                                    csch, sech, sinh, tanh)
-from .elementary.integers import ceiling, floor
-from .elementary.miscellaneous import Id, Max, Min, cbrt, real_root, root, sqrt
-from .elementary.piecewise import Piecewise, piecewise_fold
-from .elementary.trigonometric import (acos, acot, acsc, asec, asin, atan,
-                                       atan2, cos, cot, csc, sec, sin, tan)
-from .special.bessel import (airyai, airyaiprime, airybi, airybiprime, besseli,
-                             besselj, besselk, bessely, hankel1, hankel2, jn,
-                             jn_zeros, yn)
-from .special.beta_functions import beta
-from .special.bsplines import bspline_basis, bspline_basis_set
-from .special.delta_functions import DiracDelta, Heaviside
-from .special.elliptic_integrals import (elliptic_e, elliptic_f, elliptic_k,
-                                         elliptic_pi)
-from .special.error_functions import (E1, Chi, Ci, Ei, Li, Shi, Si, erf, erf2,
-                                      erf2inv, erfc, erfcinv, erfi, erfinv,
-                                      expint, fresnelc, fresnels, li)
-from .special.gamma_functions import (digamma, gamma, loggamma, lowergamma,
-                                      polygamma, trigamma, uppergamma)
-from .special.hyper import hyper, meijerg
-from .special.polynomials import (assoc_laguerre, assoc_legendre, chebyshevt,
-                                  chebyshevt_root, chebyshevu, chebyshevu_root,
-                                  gegenbauer, hermite, jacobi,
-                                  jacobi_normalized, laguerre, legendre)
-from .special.spherical_harmonics import Ynm, Ynm_c, Znm
-from .special.tensor_functions import Eijk, KroneckerDelta, LeviCivita
-from .special.zeta_functions import dirichlet_eta, lerchphi, polylog, zeta
+from .bessel import (airyai, airyaiprime, airybi, airybiprime, besseli,
+                     besselj, besselk, bessely, hankel1, hankel2, jn, jn_zeros,
+                     yn)
+from .beta_functions import beta
+from .bsplines import bspline_basis, bspline_basis_set
+from .complexes import (Abs, adjoint, arg, conjugate, im, periodic_argument,
+                        polar_lift, polarify, principal_branch, re, sign,
+                        transpose, unbranched_argument, unpolarify)
+from .delta_functions import DiracDelta, Heaviside
+from .elliptic_integrals import elliptic_e, elliptic_f, elliptic_k, elliptic_pi
+from .error_functions import (E1, Chi, Ci, Ei, Li, Shi, Si, erf, erf2, erf2inv,
+                              erfc, erfcinv, erfi, erfinv, expint, fresnelc,
+                              fresnels, li)
+from .exponential import LambertW, exp, exp_polar, log
+from .factorials import (FallingFactorial, RisingFactorial, binomial,
+                         factorial, factorial2, ff, rf, subfactorial)
+from .gamma_functions import (digamma, gamma, loggamma, lowergamma, polygamma,
+                              trigamma, uppergamma)
+from .hyper import hyper, meijerg
+from .hyperbolic import (acosh, acoth, asinh, atanh, cosh, coth, csch, sech,
+                         sinh, tanh)
+from .integers import ceiling, floor
+from .miscellaneous import Id, Max, Min, cbrt, real_root, root, sqrt
+from .numbers import (bell, bernoulli, catalan, euler, fibonacci, genocchi,
+                      harmonic, lucas)
+from .piecewise import Piecewise, piecewise_fold
+from .polynomials import (assoc_laguerre, assoc_legendre, chebyshevt,
+                          chebyshevt_root, chebyshevu, chebyshevu_root,
+                          gegenbauer, hermite, jacobi, jacobi_normalized,
+                          laguerre, legendre)
+from .spherical_harmonics import Ynm, Ynm_c, Znm
+from .tensor_functions import Eijk, KroneckerDelta, LeviCivita
+from .trigonometric import (acos, acot, acsc, asec, asin, atan, atan2, cos,
+                            cot, csc, sec, sin, tan)
+from .zeta_functions import dirichlet_eta, lerchphi, polylog, zeta
 
 
 ln = log
