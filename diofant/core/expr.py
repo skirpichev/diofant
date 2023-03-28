@@ -2455,10 +2455,7 @@ class Expr(Basic, EvalfMixin, metaclass=ManagedProperties):
 
         """
         from ..functions import factorial
-        from .symbol import Dummy
-        x = sympify(x)
-        _x = Dummy('x')
-        return self.subs({x: _x}).diff((_x, n)).subs({_x: x}).subs({x: 0}) * x**n / factorial(n)
+        return self.diff((x, n)).subs({x: 0}) * x**n/factorial(n)
 
     def _eval_lseries(self, x, logx=None):
         # default implementation of lseries is using nseries(), and adaptively
