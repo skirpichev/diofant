@@ -2123,6 +2123,26 @@ class Expr(Basic, EvalfMixin, metaclass=ManagedProperties):
 
         return self._eval_is_polynomial(syms)
 
+    def is_even_function(self, x):
+        try:
+            return self._eval_is_even_function(x)
+        except AttributeError:
+            pass
+        if not self.has(x):
+            return True
+        else:
+            return (self - self.subs(x, -x)).is_constant(x)
+
+    def is_odd_function(self, x):
+        try:
+            return self._eval_is_odd_function(x)
+        except AttributeError:
+            pass
+        if not self.has(x):
+            return True
+        else:
+            return (self + self.subs(x, -x)).is_constant(x)
+
     def _eval_is_rational_function(self, syms):
         if self.free_symbols.intersection(syms) == set():
             return True
