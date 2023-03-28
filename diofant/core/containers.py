@@ -252,3 +252,127 @@ class Dict(Basic):
 
 
 Mapping.register(Dict)
+
+
+import operator
+import itertools
+
+class Stream(object):
+    """
+    Stream container
+
+    Examples
+    ========
+
+    >>> from diofant.core.containers import Stream
+    >>> from diofant import Integer, I
+    >>> from diofant.abc import x
+    >>> def exp_gen(q):
+    ...     def gen():
+    ...         i, r = Integer(0), Integer(1)
+    ...         while True:
+    ...             yield r
+    ...             i += 1
+    ...             r *= q/i
+    ...     return gen()
+    >>> exp_s = Stream(exp_gen(x))
+    >>> exp_s1 = Stream(exp_gen(I*x))
+    >>> exp_s2 = Stream(exp_gen(-I*x))
+    >>> list(exp_s[0:4])
+    [1, x, x**2/2, x**3/6]
+    >>> sin_s = (exp_s1 - exp_s2)/(2*I)
+    >>> list(sin_s[1:10:2])
+    [x, -x**3/6, x**5/120, -x**7/5040, x**9/362880]
+    >>> cos_s = (exp_s1 + exp_s2)/Integer(2)
+    >>> list((sin_s*cos_s)[0:10])
+    [0, x, 0, -2*x**3/3, 0, 2*x**5/15, 0, -4*x**7/315, 0, 2*x**9/2835]
+
+    """
+
+    class _StreamIterator(object):
+
+        def __init__(self, stream):
+            self._stream = stream
+            self._position = -1 # not started yet
+
+        def __next__(self):
+            self._position += 1
+            if len(self._stream._collection) > self._position or self._stream._fill_to(self._position):
+                return self._stream._collection[self._position]
+
+            raise StopIteration()
+        next = __next__
+
+    def __init__(self, origin=[]):
+        self._collection = []
+        self._last = -1 # not started yet
+        self._origin = iter(origin) if origin else []
+
+    def _fill_to(self, index):
+        while self._last < index:
+            try:
+                n = next(self._origin)
+            except StopIteration:
+                return False
+
+            self._last += 1
+            self._collection.append(n)
+
+        return True
+
+    def __iter__(self):
+        return self._StreamIterator(self)
+
+    def __getitem__(self, index):
+        from numbers import Integral
+        if isinstance(index, Integral):
+            if index < 0:
+                raise TypeError("Invalid argument type")
+            self._fill_to(index)
+            return self._collection[index]
+        elif isinstance(index, slice):
+            if index.step == 0:
+                raise ValueError("Step must not be 0")
+            if not index.stop:
+                return self.__class__(map(self.__getitem__, itertools.islice(index.start, index.stop, index.step or 1)))
+            return self.__class__(map(self.__getitem__, range(index.start, index.stop, index.step or 1)))
+        else:
+            raise TypeError("Invalid argument type")
+
+    # TODO: move this out
+
+    def __add__(self, other):
+        return self.__class__(map(operator.add, self, other))
+
+    def __sub__(self, other):
+        from . import Integer
+        return self + other*Integer(-1)
+
+    def __mul__(self, other):
+        from . import Number, Symbol, Basic, Integer
+        if isinstance(other, Basic):
+            return self.__class__(map(lambda x: x*other, self))
+        def mul():
+            k = 0
+            while True:
+                p = Integer(0)
+                for i, a in enumerate(self):
+                    p += a*other[k - i]
+                    if i >= k:
+                        break
+                yield p
+                k += 1
+        return self.__class__(mul())
+
+    def __truediv__(self, other):
+        from . import Basic, Integer
+        if isinstance(other, Basic):
+            return self*(1/other)
+        def invert_unit_series(s):
+            r = Integer(1)
+            for t in s:
+                yield r
+                r = Integer(-1)*r*t
+        c = 1/other[0]
+        return self*invert_unit_series(other*c)*c
+    __div__ = __truediv__
